@@ -13,11 +13,11 @@ void static inline wht_butterfly(float *const s, float *const d) {
 // Perform in-place Fast Walsh-Hadamard transform.
 void fx_fwht(float *const x, const uint8_t nbits) {
 	const size_t n = 1 << nbits;
-	for (int width = n; width > 1; width >>= 1) {
+	for (size_t width = n; width > 1; width >>= 1) {
 		// width halves each iteration.
-		for (int block = 0; block < n; block += width) {
+		for (size_t block = 0; block < n; block += width) {
 			// block shifts by with.
-			for (int i = 0; i < (width >> 1); ++i) {
+			for (size_t i = 0; i < (width >> 1); ++i) {
 				// i loops to half a block.
 				wht_butterfly(x + block + i, x + (width >> 1) + block + i);
 			}
@@ -30,7 +30,7 @@ void fx_fwht(float *const x, const uint8_t nbits) {
 // transformation randomly flips the signs of elements in vector x.
 uint16_t fx_randflip(float *const x, const size_t n, uint16_t lfsr) {
 	assert(lfsr != 0);
-	for (int i = 0; i < n; i++) {
+	for (size_t i = 0; i < n; i++) {
 		if (lfsr & 1) {
 			lfsr ^= 0xb400; // Update the Galois LFSR.
 			x[i] *= -1;     // Flip sign.
@@ -70,7 +70,7 @@ void fx_sorf(float *const x, const uint8_t nbits) {
 	s *= pow(2, nbits / 2.);
 	assert(fabs(1. / s - n) < 1e-4);
 
-	for (int i = 0; i < n; ++i) {
+	for (size_t i = 0; i < n; ++i) {
 		x[i] *= s;
 	}
 }
@@ -80,7 +80,7 @@ void fx_sorf(float *const x, const uint8_t nbits) {
 // to form a vector x2. The vectors can be the same vector.
 void fx_repeat(float *const x1, const size_t n1, float *const x2,
                const size_t n2) {
-	for (int i = 0; i < n2; ++i) {
+	for (size_t i = 0; i < n2; ++i) {
 		if (i < n1) {
 			// Copy from x1 to x2.
 			x2[i] = x1[i];
