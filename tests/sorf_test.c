@@ -1,52 +1,52 @@
-#include <stdio.h>
-#include <stdint.h>
-#include <string.h>
+#include <epsilon.h>
+#include <greatest.h>
 #include <math.h>
-#include "minunit.h"
-#include "fx.h"
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
 
 #define FX_UNIT 1.
 
 int tests_run = 0;
 
 #define FX_TEST_L2D 8
-#define FX_TEST_D (1<<FX_TEST_L2D)
+#define FX_TEST_D (1 << FX_TEST_L2D)
 
-uint16_t fx_randflip(float * const x, const size_t n,  uint16_t lfsr);
+uint16_t fx_randflip(float *const x, const size_t n, uint16_t lfsr);
 
-static char * test_fwht() {
+TEST test_fwht() {
 	// Test properties:
 	// 1). W W = n I.
 	// 2). W \neq \sqrt(n) I.
-	
+
 	float x0[FX_TEST_D];
 	float x[FX_TEST_D];
-			
+
 	for (int d = 0; d < FX_TEST_D; ++d) {
 		// Set x and x0 to unit vector.
 		memset(x0, 0, sizeof(x));
 		x0[d] = FX_UNIT;
 		memcpy(x, x0, sizeof(x));
-		
+
 		fx_fwht(x, FX_TEST_L2D);
 		for (int i = 0; i < FX_TEST_D; ++i) {
-			// Test property 2. 
-			mu_assert("Expected fwht(x) in {-1, 1}^d!", 
-				x[i] == FX_UNIT || x[i] == -FX_UNIT);
+			// Test property 2.
+			ASSERTm("Expected fwht(x) in {-1, 1}^d!",
+			        x[i] == FX_UNIT || x[i] == -FX_UNIT);
 		}
-		
+
 		fx_fwht(x, FX_TEST_L2D);
-		for (int i = 0; i < 1<<FX_TEST_L2D; ++i) {
+		for (int i = 0; i < 1 << FX_TEST_L2D; ++i) {
 			// Test property 1.
-			mu_assert("Expected fwht(fwht(x)) == d x!", 
-				x[i] == FX_TEST_D * x0[i]);
+			ASSERTm("Expected fwht(fwht(x)) == d x!",
+			        x[i] == FX_TEST_D * x0[i]);
 		}
 	}
-	
-	return 0;
+
+	PASS();
 }
 
-static char * test_sorf() {
+TEST test_sorf() {
 	float x0[FX_TEST_D];
 	float x[FX_TEST_D];
 
@@ -65,11 +65,11 @@ static char * test_sorf() {
 		float ss_after = 0;
 
 		for (int i = 0; i < FX_TEST_D; ++i) {
-			ss_before += x0[i] * (x0[i] / (float) FX_UNIT);
-			ss_after += x[i] * (x[i] / (float) FX_UNIT);
+			ss_before += x0[i] * (x0[i] / (float)FX_UNIT);
+			ss_after += x[i] * (x[i] / (float)FX_UNIT);
 		}
-		mu_assert("Expected SORF normalization of D^(-1/2)!",
-			fabs(FX_TEST_D * ss_before - ss_after) < 1e-6);
+		ASSERTm("Expected SORF normalization of D^(-1/2)!",
+		        fabs(FX_TEST_D * ss_before - ss_after) < 1e-6);
 
 		// Check SORF mixing, which is the main use of the SORF transform.
 		// Mixing implies that a sparse vector becomes a dense vector.
@@ -77,15 +77,14 @@ static char * test_sorf() {
 		for (int i = 0; i < FX_TEST_D; ++i) {
 			nonzero += x[i] != 0;
 		}
-		mu_assert("Expected more than one non-zero element in SORF(x)", 
-			nonzero > 1);
+		ASSERTm("Expected more than one non-zero element in SORF(x)",
+		        nonzero > 1);
 	}
 
-	return 0;
+	PASS();
 }
 
-
-static char * test_randflip() {
+TEST test_randflip() {
 	// Initialize a vector with a counting pattern.
 	float x[FX_TEST_D];
 	for (int i = 0; i < FX_TEST_D; i++) {
@@ -98,20 +97,20 @@ static char * test_randflip() {
 	// Count flips.
 	int negs = 0;
 	for (int i = 0; i < FX_TEST_D; i++) {
-		mu_assert("randflip8 should only change sign", x[i] == -i || x[i] == i);
+		ASSERTm("randflip8 should only change sign", x[i] == -i || x[i] == i);
 		negs += x[i] < 0;
 	}
 
 	// Use approximate biomial 95% confidence interval as test.
-	float p_hat = (float) negs / FX_TEST_D;
+	float p_hat = (float)negs / FX_TEST_D;
 	float ci = 1.96 * sqrt(p_hat * (1 - p_hat) / FX_TEST_D);
-	mu_assert("randflip flipped unexpected fraction of array", 
-			0.5 - ci < p_hat && p_hat < 0.5 + ci);
+	ASSERTm("randflip flipped unexpected fraction of array",
+	        0.5 - ci < p_hat && p_hat < 0.5 + ci);
 
-	return 0;
+	PASS();
 }
 
-static char * test_repeat() {
+TEST test_repeat() {
 	float source[FX_TEST_D], target[FX_TEST_D];
 	for (int i = 0; i < FX_TEST_D; i++) {
 		source[i] = i;
@@ -120,39 +119,22 @@ static char * test_repeat() {
 	// Test copy repeating.
 	fx_repeat(source, 3, target, FX_TEST_D);
 	for (int i = 0; i < FX_TEST_D; i++) {
-		mu_assert("unexpected value in copy repeat", 
-			target[i] == source[i % 3]);
+		ASSERTm("unexpected value in copy repeat", target[i] == source[i % 3]);
 	}
 
 	// Test in-place repeating.
 	fx_repeat(source, 3, source, FX_TEST_D);
 	for (int i = 0; i < FX_TEST_D; i++) {
-		mu_assert("unexpected value in in-place repeat", 
-			source[i] == source[i % 3]);
+		ASSERTm("unexpected value in in-place repeat",
+		        source[i] == source[i % 3]);
 	}
-	
-	return 0;
+
+	PASS();
 }
 
-
-static char * all_tests() {
-	mu_run_test(test_fwht);
-	mu_run_test(test_randflip);
-	mu_run_test(test_sorf);
-	mu_run_test(test_repeat);
-	return 0;
-}
-
-
-
-int main(int argc, char **argv) {
-	char *result = all_tests();
-	if (result != 0) {
-		printf("%s\n", result);
-	} else {
-		printf("ALL TESTS PASSED\n");
-	}
-	printf("Tests run: %d\n", tests_run);
-
-	return result != 0;
+SUITE(sorf) {
+	RUN_TEST(test_fwht);
+	RUN_TEST(test_sorf);
+	RUN_TEST(test_randflip);
+	RUN_TEST(test_repeat);
 }
