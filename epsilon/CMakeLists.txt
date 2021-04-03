@@ -1,4 +1,4 @@
-add_library(epsilon rng.c)
+add_library(epsilon xorshift.c)
 set_target_properties(epsilon PROPERTIES 
     VERSION ${PROJECT_VERSION}
     C_STANDARD 99)
