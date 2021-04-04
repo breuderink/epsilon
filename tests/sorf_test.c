@@ -53,7 +53,7 @@ TEST test_SORF() {
 		memset(x0, 0, sizeof(x));
 		x0[d] = UNIT;
 		memcpy(x, x0, sizeof(x));
-		fx_SORF(x, L2D);
+		SORF(x, L2D);
 
 		// Check for the right normalization. We know that the HDHDHD steps
 		// preserve the norm. SORF contains an additional scale factor of
@@ -115,13 +115,13 @@ TEST test_repeat() {
 	}
 
 	// Test copy repeating.
-	fx_repeat(source, 3, target, DIMS);
+	SORF_repeat(source, 3, target, DIMS);
 	for (int i = 0; i < DIMS; i++) {
 		ASSERTm("unexpected value in copy repeat", target[i] == source[i % 3]);
 	}
 
 	// Test in-place repeating.
-	fx_repeat(source, 3, source, DIMS);
+	SORF_repeat(source, 3, source, DIMS);
 	for (int i = 0; i < DIMS; i++) {
 		ASSERTm("unexpected value in in-place repeat",
 		        source[i] == source[i % 3]);

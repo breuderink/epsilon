@@ -49,7 +49,7 @@ uint16_t SORF_randflip(float *const x, const size_t n, uint16_t lfsr) {
 // [3] Choromanski, Krzysztof, and Vikas Sindhwani. "Recycling randomness
 // with structure for sublinear time kernel expansions." International
 // Conference on Machine Learning. 2016.
-void fx_SORF(float *const x, const uint8_t nbits) {
+void SORF(float *const x, const uint8_t nbits) {
 	const size_t n = 1 << nbits;
 	uint16_t state = 1;
 
@@ -76,9 +76,9 @@ void fx_SORF(float *const x, const uint8_t nbits) {
 }
 
 // We may need to increase the dimensionality of a feature
-// vector before applying SORF. Function fx_repeat repeats elements in x1
+// vector before applying SORF. Function SORF_repeat repeats elements in x1
 // to form a vector x2. The vectors can be the same vector.
-void fx_repeat(float *const x1, const size_t n1, float *const x2,
+void SORF_repeat(float *const x1, const size_t n1, float *const x2,
                const size_t n2) {
 	for (size_t i = 0; i < n2; ++i) {
 		if (i < n1) {

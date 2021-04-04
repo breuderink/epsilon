@@ -9,11 +9,11 @@ void FWHT(float *x, uint8_t nbits);
 // SORF is a pseudorandom matrix transformation based on fast Walsh-Hadamard
 // transform and sign flipping. Based on [1, 2]. Note that SORF is patented:
 // US2018/014145A1!
-void fx_SORF(float *x, uint8_t nbits);
+void SORF(float *x, uint8_t nbits);
 
 // Repeat elements in x1 to form a vector x2 to increase input dimensions for
 // SORF.
-void fx_repeat(float *x1, size_t n1, float *x2, size_t n2);
+void SORF_repeat(float *x1, size_t n1, float *x2, size_t n2);
 
 /*
 # References
