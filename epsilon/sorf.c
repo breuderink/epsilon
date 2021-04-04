@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-void static inline wht_butterfly(float *const s, float *const d) {
+void static inline WHT_butterfly(float *const s, float *const d) {
 	float temp = *s;
 	*s += *d;
 	*d = temp - *d;
@@ -19,7 +19,7 @@ void FWHT(float *const x, const uint8_t nbits) {
 			// block shifts by with.
 			for (size_t i = 0; i < (width >> 1); ++i) {
 				// i loops to half a block.
-				wht_butterfly(x + block + i, x + (width >> 1) + block + i);
+				WHT_butterfly(x + block + i, x + (width >> 1) + block + i);
 			}
 		}
 	}
@@ -28,7 +28,7 @@ void FWHT(float *const x, const uint8_t nbits) {
 // SORF contains a multiplication with a diagonal matrix where each
 // diagonal element is sampled from the Rademacher distribution. This
 // transformation randomly flips the signs of elements in vector x.
-uint16_t fx_randflip(float *const x, const size_t n, uint16_t lfsr) {
+uint16_t SORF_randflip(float *const x, const size_t n, uint16_t lfsr) {
 	assert(lfsr != 0);
 	for (size_t i = 0; i < n; i++) {
 		if (lfsr & 1) {
@@ -58,7 +58,7 @@ void fx_SORF(float *const x, const uint8_t nbits) {
 	for (int i = 0; i < 3; i++) {
 		FWHT(x, nbits);
 		s *= pow(2, -nbits / 2.);
-		state = fx_randflip(x, n, state);
+		state = SORF_randflip(x, n, state);
 	}
 
 	// Rescale vector to make transformation independent of basis size.
