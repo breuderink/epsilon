@@ -39,14 +39,3 @@ SUITE(xorshift) {
 	RUN_TEST(xorshift32_cycle_length);
 	RUN_TEST(xorshift32_cycle_exhaustive);
 }
-
-SUITE_EXTERN(sorf);
-
-GREATEST_MAIN_DEFS();
-
-int main(int argc, char **argv) {
-	GREATEST_MAIN_BEGIN();
-	RUN_SUITE(xorshift);
-	RUN_SUITE(sorf);
-	GREATEST_MAIN_END();
-}
