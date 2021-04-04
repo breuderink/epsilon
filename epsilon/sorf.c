@@ -11,7 +11,7 @@ void static inline wht_butterfly(float *const s, float *const d) {
 }
 
 // Perform in-place Fast Walsh-Hadamard transform.
-void fx_fwht(float *const x, const uint8_t nbits) {
+void FWHT(float *const x, const uint8_t nbits) {
 	const size_t n = 1 << nbits;
 	for (size_t width = n; width > 1; width >>= 1) {
 		// width halves each iteration.
@@ -49,14 +49,14 @@ uint16_t fx_randflip(float *const x, const size_t n, uint16_t lfsr) {
 // [3] Choromanski, Krzysztof, and Vikas Sindhwani. "Recycling randomness
 // with structure for sublinear time kernel expansions." International
 // Conference on Machine Learning. 2016.
-void fx_sorf(float *const x, const uint8_t nbits) {
+void fx_SORF(float *const x, const uint8_t nbits) {
 	const size_t n = 1 << nbits;
 	uint16_t state = 1;
 
 	float s = 1;
 
 	for (int i = 0; i < 3; i++) {
-		fx_fwht(x, nbits);
+		FWHT(x, nbits);
 		s *= pow(2, -nbits / 2.);
 		state = fx_randflip(x, n, state);
 	}

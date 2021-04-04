@@ -26,14 +26,14 @@ TEST test_fwht() {
 		x0[d] = FX_UNIT;
 		memcpy(x, x0, sizeof(x));
 
-		fx_fwht(x, FX_TEST_L2D);
+		FWHT(x, FX_TEST_L2D);
 		for (int i = 0; i < FX_TEST_D; ++i) {
 			// Test property 2.
 			ASSERTm("Expected fwht(x) in {-1, 1}^d!",
 			        x[i] == FX_UNIT || x[i] == -FX_UNIT);
 		}
 
-		fx_fwht(x, FX_TEST_L2D);
+		FWHT(x, FX_TEST_L2D);
 		for (int i = 0; i < 1 << FX_TEST_L2D; ++i) {
 			// Test property 1.
 			ASSERTm("Expected fwht(fwht(x)) == d x!",
@@ -53,7 +53,7 @@ TEST test_sorf() {
 		memset(x0, 0, sizeof(x));
 		x0[d] = FX_UNIT;
 		memcpy(x, x0, sizeof(x));
-		fx_sorf(x, FX_TEST_L2D);
+		fx_SORF(x, FX_TEST_L2D);
 
 		// Check for the right normalization. We know that the HDHDHD steps
 		// preserve the norm. SORF contains an additional scale factor of
