@@ -7,8 +7,6 @@
 
 #define FX_UNIT 1.
 
-int tests_run = 0;
-
 #define FX_TEST_L2D 8
 #define FX_TEST_D (1 << FX_TEST_L2D)
 
