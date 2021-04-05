@@ -35,7 +35,7 @@ pseudo-random number generator by George Marsaglia that has good statistical
 properties.
 
 ## Feature extraction
-- [Structured random orthogonal features](doc/yu2016orf.pdf) (SORF). Note that SORF is patented.
+- [Structured random orthogonal features](docs/yu2016orf.pdf) (SORF). Note that SORF is patented.
 
 ## Regression
 - Linear passive-aggressive regression (TODO)
