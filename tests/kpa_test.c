@@ -44,6 +44,6 @@ TEST test_idle() {
 	return 0;
 }
 
-SUITE(KPA) {
+SUITE(KPA_tests) {
 	RUN_TEST(test_idle);
 }
