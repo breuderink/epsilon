@@ -1,5 +1,5 @@
 #include "kpa.h"
-#include "minunit.h"
+#include <greatest.h>
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>
@@ -29,36 +29,21 @@ static km_t setup(X_t X, alpha_t a) {
 	              .kernel = &lin_kernel};
 }
 
-static char *test_idle() {
+TEST test_idle() {
 	km_t km = setup((X_t){{0}}, (alpha_t){0, 2, 3, 5, 0});
-	mu_assert("there should be 2 idle SVs!", km_num_idle(&km) == 2);
+	ASSERTm("there should be 2 idle SVs!", km_num_idle(&km) == 2);
 
-	mu_assert("first idle SV should be in position 0!", km_idle(&km, 0) == 0);
-	mu_assert("second idle SV should be in position 4!", km_idle(&km, 1) == 4);
+	ASSERTm("first idle SV should be in position 0!", km_idle(&km, 0) == 0);
+	ASSERTm("second idle SV should be in position 4!", km_idle(&km, 1) == 4);
 
 	km.alpha[0] = -1;
-	mu_assert("there should be 1 idle SVs!", km_num_idle(&km) == 1);
-	mu_assert("first idle SV should be in position 4!", km_idle(&km, 0) == 4);
+	ASSERTm("there should be 1 idle SVs!", km_num_idle(&km) == 1);
+	ASSERTm("first idle SV should be in position 4!", km_idle(&km, 0) == 4);
 
 	// TODO: should we test out-of-range calls?
 	return 0;
 }
 
-int tests_run = 0;
-
-static char *all_tests() {
-	mu_run_test(test_idle);
-	return 0;
-}
-
-int main() {
-	char *result = all_tests();
-	if (result != 0) {
-		printf("%s\n", result);
-	} else {
-		printf("ALL TESTS PASSED\n");
-	}
-	printf("Tests run: %d\n", tests_run);
-
-	return result != 0;
+SUITE(KPA) {
+	RUN_TEST(test_idle);
 }
