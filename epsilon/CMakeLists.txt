@@ -1,4 +1,4 @@
-add_library(epsilon rng.c sorf.c)
+add_library(epsilon rng.c sorf.c kpa.c)
 set_target_properties(epsilon PROPERTIES 
     VERSION ${PROJECT_VERSION}
     C_STANDARD 99)
