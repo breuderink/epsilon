@@ -30,12 +30,15 @@ To allow machine learning to run on microcontrollers, the implementations:
 # Algorithms
 
 ## Pseudo-random number generation
-- [Xorshift](docs/marsaglia2003xrn.pdf) is a very simple and vast
+- [Xorshift](docs/marsaglia2003xrn.pdf) is a fast and simple
 pseudo-random number generator by George Marsaglia that has good statistical
 properties.
 
 ## Feature extraction
-- [Structured random orthogonal features](docs/yu2016orf.pdf) (SORF). Note that SORF is patented.
+- [Structured random orthogonal features](docs/yu2016orf.pdf) (SORF). An `O(d
+log d)` transformation that can be used for a feature map that approximates a
+specific kernel. Here `d` is the number of input dimensions. Note that SORF
+is [patented](https://patents.google.com/patent/US20180114145A1).
 
 ## Regression
 - Linear passive-aggressive regression (TODO)
