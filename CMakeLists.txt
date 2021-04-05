@@ -10,6 +10,7 @@ add_subdirectory(epsilon)
 # Testing
 enable_testing()
 add_subdirectory(tests)
+add_subdirectory(examples)
 
 # Installation
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")

@@ -32,7 +32,7 @@ To allow machine learning to run on microcontrollers, the implementations:
 ## Pseudo-random number generation
 - [Xorshift](docs/marsaglia2003xrn.pdf) is a fast and simple
 pseudo-random number generator by George Marsaglia that has good statistical
-properties.
+properties. See the xorshift [example](examples/example_xorshift.c).
 
 ## Feature extraction
 - [Structured random orthogonal features](docs/yu2016orf.pdf) (SORF). An `O(d
