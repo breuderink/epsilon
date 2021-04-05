@@ -22,10 +22,10 @@ or even the [ATtiny85](https://www.microchip.com/wwwproducts/en/attiny85)
 
 To allow machine learning to run on microcontrollers, the implementations:
 
-- Do not use dynamic memory allocation if possible.
-- Favour online over batch operation.
-- Work with fixed-point math when realistic.
-- Are easy to tune.
+- do not use dynamic memory allocation if possible,
+- favour online over batch operation,
+- work with fixed-point math when realistic, and
+- are easy to tune.
 
 # Algorithms
 
