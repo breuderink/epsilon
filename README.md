@@ -43,3 +43,9 @@ is [patented](https://patents.google.com/patent/US20180114145A1).
 ## Regression
 - Linear passive-aggressive regression (TODO)
 - Kernelized passive-aggressive regression (TODO)
+
+# Other solutions for Tiny ML or Edge AI
+- [TensorFlow Lite](https://www.tensorflow.org/lite/)
+- [Edge Impulse](https://www.edgeimpulse.com)
+- [Micro ML](https://github.com/eloquentarduino/EloquentMicroML)
+- [Q-behave](https://github.com/smigielski/q-behave)
