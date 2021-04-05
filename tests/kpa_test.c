@@ -5,18 +5,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define NFEAT 2
-#define NACTIVE 5
+#define FEATURE_DIMS 2
+#define SUPPORT_VECTORS 5
 
 // Prepare for easy test setup.
-typedef float X_t[NACTIVE][NFEAT];
-typedef float alpha_t[NACTIVE];
+typedef float X_t[SUPPORT_VECTORS][FEATURE_DIMS];
+typedef float alpha_t[SUPPORT_VECTORS];
 
-static float lin_kernel(void *instances, size_t i, size_t j) {
-	float(*x)[NFEAT] = (float(*)[NFEAT])instances;
+static float linear_kernel(void *instances, size_t i, size_t j) {
+	float(*x)[FEATURE_DIMS] = (float(*)[FEATURE_DIMS])instances;
 
 	float k = 1; // 1 for bias term.
-	for (int f = 0; f < NFEAT; ++f) {
+	for (int f = 0; f < FEATURE_DIMS; ++f) {
 		k += x[i][f] * x[j][f];
 	}
 	return k;
@@ -25,8 +25,8 @@ static float lin_kernel(void *instances, size_t i, size_t j) {
 static km_t setup(X_t X, alpha_t a) {
 	return (km_t){.instances = X,
 	              .alpha = a,
-	              .num_alpha = NACTIVE,
-	              .kernel = &lin_kernel};
+	              .num_alpha = SUPPORT_VECTORS,
+	              .kernel = &linear_kernel};
 }
 
 TEST test_idle() {
