@@ -1,4 +1,3 @@
-
 add_library(epsilon rng.c sorf.c)
 set_target_properties(epsilon PROPERTIES 
     VERSION ${PROJECT_VERSION}
