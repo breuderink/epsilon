@@ -37,5 +37,7 @@ TEST xorshift32_cycle_exhaustive() {
 
 SUITE(RNG) {
 	RUN_TEST(xorshift32_cycle_length);
+#ifdef XORSHIFT32_EXHAUSTIVE
 	RUN_TEST(xorshift32_cycle_exhaustive);
+#endif
 }
