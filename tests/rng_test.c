@@ -35,15 +35,7 @@ TEST xorshift32_cycle_exhaustive() {
 	PASS();
 }
 
-SUITE(xorshift) {
+SUITE(RNG) {
 	RUN_TEST(xorshift32_cycle_length);
 	RUN_TEST(xorshift32_cycle_exhaustive);
-}
-
-GREATEST_MAIN_DEFS();
-
-int main(int argc, char **argv) {
-	GREATEST_MAIN_BEGIN();
-	RUN_SUITE(xorshift);
-	GREATEST_MAIN_END();
 }
