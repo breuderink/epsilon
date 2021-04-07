@@ -22,15 +22,15 @@ static float linear_kernel(void *instances, size_t i, size_t j) {
 	return k;
 }
 
-static km_t setup(X_t X, alpha_t a) {
-	return (km_t){.instances = X,
+static kernel_projection_t setup(X_t X, alpha_t a) {
+	return (kernel_projection_t){.instances = X,
 	              .alpha = a,
 	              .num_alpha = SUPPORT_VECTORS,
 	              .kernel = &linear_kernel};
 }
 
 TEST test_idle() {
-	km_t km = setup((X_t){{0}}, (alpha_t){0, 2, 3, 5, 0});
+	kernel_projection_t km = setup((X_t){{0}}, (alpha_t){0, 2, 3, 5, 0});
 	ASSERTm("there should be 2 idle SVs!", km_num_idle(&km) == 2);
 
 	ASSERTm("first idle SV should be in position 0!", km_idle(&km, 0) == 0);

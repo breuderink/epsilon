@@ -3,7 +3,7 @@
 #include <math.h>
 #include <stddef.h>
 
-size_t km_num_idle(const km_t *km) {
+size_t km_num_idle(const kernel_projection_t *km) {
 	size_t c = 0;
 	for (size_t i = 0; i < km->num_alpha; ++i) {
 		c += km->alpha[i] == 0;
@@ -11,7 +11,7 @@ size_t km_num_idle(const km_t *km) {
 	return c;
 }
 
-size_t km_idle(const km_t *km, size_t n) {
+size_t km_idle(const kernel_projection_t *km, size_t n) {
 	size_t c = n + 1;
 	for (size_t i = 0; i < km->num_alpha; ++i) {
 		c -= km->alpha[i] == 0;
@@ -22,7 +22,7 @@ size_t km_idle(const km_t *km, size_t n) {
 	return 0;
 }
 
-float km_bpa_simple(km_t *km, size_t t) {
+float km_bpa_simple(kernel_projection_t *km, size_t t) {
 	struct {
 		size_t r;
 		float proj;
@@ -76,7 +76,7 @@ float km_bpa_simple(km_t *km, size_t t) {
 	return best.loss;
 }
 
-float km_dot(km_t *km, size_t x) {
+float km_dot(kernel_projection_t *km, size_t x) {
 	float y_hat = 0;
 	for (size_t i = 0; i < km->num_alpha; ++i) {
 		float a = km->alpha[i];
@@ -87,7 +87,7 @@ float km_dot(km_t *km, size_t x) {
 	return y_hat;
 }
 
-float par(const pa_t pa, float y_hat, float y) {
+float par(const passive_aggressive_t pa, float y_hat, float y) {
 	assert(pa.eps >= 0);
 	assert(pa.C > 0);
 	assert(isfinite(y_hat));
@@ -98,7 +98,7 @@ float par(const pa_t pa, float y_hat, float y) {
 	return copysign(tau, y - y_hat);
 }
 
-float km_par(km_t *km, const pa_t pa, size_t x, float y) {
+float km_par(kernel_projection_t *km, const passive_aggressive_t pa, size_t x, float y) {
 	float y_hat = km_dot(km, x);
 	assert(isfinite(y_hat));
 
