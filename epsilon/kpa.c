@@ -3,18 +3,18 @@
 #include <math.h>
 #include <stddef.h>
 
-size_t km_num_idle(const kernel_projection_t *km) {
+size_t KP_num_idle(const KP_t *kp) {
 	size_t c = 0;
-	for (size_t i = 0; i < km->num_alpha; ++i) {
-		c += km->alpha[i] == 0;
+	for (size_t i = 0; i < kp->num_alpha; ++i) {
+		c += kp->alpha[i] == 0;
 	}
 	return c;
 }
 
-size_t km_idle(const kernel_projection_t *km, size_t n) {
+size_t KP_idle(const KP_t *kp, size_t n) {
 	size_t c = n + 1;
-	for (size_t i = 0; i < km->num_alpha; ++i) {
-		c -= km->alpha[i] == 0;
+	for (size_t i = 0; i < kp->num_alpha; ++i) {
+		c -= kp->alpha[i] == 0;
 		if (!c)
 			return i;
 	}
@@ -22,24 +22,24 @@ size_t km_idle(const kernel_projection_t *km, size_t n) {
 	return 0;
 }
 
-float km_bpa_simple(kernel_projection_t *km, size_t t) {
+float BPA_simple(KP_t *kp, size_t t) {
 	struct {
 		size_t r;
 		float proj;
 		float loss;
 	} curr, best = {.r = t, .proj = NAN, .loss = INFINITY};
 
-	const float k_tt = km->kernel(km->instances, t, t);
+	const float k_tt = kp->kernel(kp->instances, t, t);
 
 	// Search for instance r to absorb.
-	for (curr.r = 0; curr.r < km->num_alpha; ++curr.r) {
+	for (curr.r = 0; curr.r < kp->num_alpha; ++curr.r) {
 		if (curr.r == t) {
 			continue;
 		}
-		float a_r = km->alpha[curr.r];
+		float a_r = kp->alpha[curr.r];
 		if (a_r == 0) {
 			// Freeing an empty space is trivial, but prevents serial
-			// application of km_bpa_simple.
+			// application of BPA_simple.
 			continue;
 		}
 
@@ -51,8 +51,8 @@ float km_bpa_simple(kernel_projection_t *km, size_t t) {
 		// dl(b)/db = 2ad + 2be = 0.
 		// -> b = -ad/e ->  p = a_r k(r,t)/k(t,t)
 
-		float k_rr = km->kernel(km->instances, curr.r, t);
-		float k_rt = km->kernel(km->instances, curr.r, t);
+		float k_rr = kp->kernel(kp->instances, curr.r, t);
+		float k_rt = kp->kernel(kp->instances, curr.r, t);
 		curr.proj = a_r * k_rt / k_tt;
 
 		curr.loss = a_r * a_r * k_rr;              // l(b) = aac
@@ -70,24 +70,24 @@ float km_bpa_simple(kernel_projection_t *km, size_t t) {
 	}
 
 	// Perform projection of r on target t, and neutralize r.
-	km->alpha[t] += best.proj;
-	km->alpha[best.r] = 0;
+	kp->alpha[t] += best.proj;
+	kp->alpha[best.r] = 0;
 
 	return best.loss;
 }
 
-float km_dot(kernel_projection_t *km, size_t x) {
+float KP_dot(KP_t *kp, size_t x) {
 	float y_hat = 0;
-	for (size_t i = 0; i < km->num_alpha; ++i) {
-		float a = km->alpha[i];
+	for (size_t i = 0; i < kp->num_alpha; ++i) {
+		float a = kp->alpha[i];
 		if (a != 0) {
-			y_hat += a * km->kernel(km->instances, i, x);
+			y_hat += a * kp->kernel(kp->instances, i, x);
 		}
 	}
 	return y_hat;
 }
 
-float par(const passive_aggressive_t pa, float y_hat, float y) {
+float PA_regress_update(const PA_t pa, float y_hat, float y) {
 	assert(pa.eps >= 0);
 	assert(pa.C > 0);
 	assert(isfinite(y_hat));
@@ -98,18 +98,18 @@ float par(const passive_aggressive_t pa, float y_hat, float y) {
 	return copysign(tau, y - y_hat);
 }
 
-float km_par(kernel_projection_t *km, const passive_aggressive_t pa, size_t x, float y) {
-	float y_hat = km_dot(km, x);
+float KPA_regress(KP_t *kp, const PA_t pa, size_t x, float y) {
+	float y_hat = KP_dot(kp, x);
 	assert(isfinite(y_hat));
 
 	if (isfinite(y)) {
 		// Compute loss if y is provided.
-		assert(km->alpha[x] == 0);
-		km->alpha[x] = par(pa, y_hat, y);
+		assert(kp->alpha[x] == 0);
+		kp->alpha[x] = PA_regress_update(pa, y_hat, y);
 
 		// Maintain budget.
-		if (km_num_idle(km) < 1) {
-			km_bpa_simple(km, x);
+		if (KP_num_idle(kp) < 1) {
+			BPA_simple(kp, x);
 		}
 	}
 
