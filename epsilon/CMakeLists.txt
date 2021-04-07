@@ -3,7 +3,7 @@ set_target_properties(epsilon PROPERTIES
     VERSION ${PROJECT_VERSION}
     C_STANDARD 99)
 
-option(EPSILON_SORF_ENABLED "enable patented SORF" ON)
+option(EPSILON_SORF_ENABLED "enable patented SORF" OFF)
 if(EPSILON_SORF_ENABLED)
     target_compile_definitions(epsilon PRIVATE SORF_ENABLED)
 endif()
