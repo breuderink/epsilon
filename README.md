@@ -48,6 +48,22 @@ is [patented](https://patents.google.com/patent/US20180114145A1).
 - Linear passive-aggressive regression (TODO)
 - Kernelized passive-aggressive regression (TODO)
 
+# Building
+Epsilon uses CMake for building. Create a build directory, and configure the
+project. In the repository root, configure and build the project:
+
+```
+$ mkdir -p build && cd build
+$ cmake -DCMAKE_BUILD_TYPE=Release ..
+$ cmake --build .
+```
+
+Next, run the unit test using CTest:
+
+```
+$ ctest -C Release
+```
+
 # Other solutions for Tiny ML or Edge AI
 - [TensorFlow Lite](https://www.tensorflow.org/lite/)
 - [Edge Impulse](https://www.edgeimpulse.com)

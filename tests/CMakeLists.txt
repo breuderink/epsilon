@@ -1,9 +1,18 @@
-find_path(GREATEST_INCLUDE_DIRS greatest.h REQUIRED)
+# Greatest unit-test dependency. TODO: add hash.
+include(FetchContent)
+FetchContent_Declare(
+  greatest
+  GIT_REPOSITORY https://github.com/silentbicycle/greatest
+  GIT_TAG v1.5.0
+)
+FetchContent_MakeAvailable(greatest)
 
+# Define test executable.
 add_executable(epsilon_test main.c rng_test.c sorf_test.c)
-target_include_directories(epsilon_test PRIVATE ${GREATEST_INCLUDE_DIRS})
+target_include_directories(epsilon_test PRIVATE ${greatest_SOURCE_DIR})
 target_link_libraries(epsilon_test epsilon)
 
+# Handle options.
 option(EPSILON_RNG_TEST_EXHAUSTIVE "enable exhaustive test for xorshift32" OFF)
 if(EPSILON_RNG_TEST_EXHAUSTIVE)
     target_compile_definitions(epsilon_test PRIVATE XORSHIFT32_EXHAUSTIVE)
