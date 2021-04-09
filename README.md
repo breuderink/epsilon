@@ -1,21 +1,19 @@
 # Epsilon
 Epsilon is a library with small functions for machine learning and statistics
-written in plain C. The functions are well tested and loosely coupled.
+written in plain C. The functions are well tested and decoupled.
 
 ## Motivation
-Most machine learning focuses on training large models on powerful
-hardware. After training, models are frozen and applied to new data. These
-trained models can be compressed to allow making predictions on constrained
-hardware such as microcontrollers. This compressed model can be applied to
-new data, but the model itself is static.
+Most machine learning focuses on training large models on powerful hardware.
+After training, researchers freeze the models and apply them to new data.
+These models are too big to run on microcontrollers. One can compress these
+models to make them fit. The compressed model can make predictions for new
+data. But the model itself remains static, even if the environment changes.
 
-An alternative approach is to optimize the model on the target hardware. This
-requires particular efficient and robust algorithms, since there is no
-researcher to guide the process.
-
-The epsilon library contains building blocks for both training and applying
-machine learning models on such underpowered devices, such as
-microcontrollers.
+An alternative approach is to optimise the model on the microcontroller
+itself. In this case, the model can adapt to new data. This requires
+particular memory-efficient algorithms. Further, the optimization process
+should be reliable. Epsilon provides methods to train and apply machine
+learning methods on microcontrollers.
 
 These algorithms should function on microcontrollers, such as the
 [Raspberry Pi Pico](https://www.raspberrypi.org/products/raspberry-pi-pico/),
