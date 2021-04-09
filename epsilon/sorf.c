@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-void static inline WHT_butterfly(float *const s, float *const d) {
+inline static void WHT_butterfly(float *const s, float *const d) {
 	float temp = *s;
 	*s += *d;
 	*d = temp - *d;
@@ -25,6 +25,7 @@ void FWHT(float *const x, const uint8_t nbits) {
 	}
 }
 
+#ifdef SORF_ENABLED
 // SORF contains a multiplication with a diagonal matrix where each
 // diagonal element is sampled from the Rademacher distribution. This
 // transformation randomly flips the signs of elements in vector x.
@@ -79,7 +80,7 @@ void SORF(float *const x, const uint8_t nbits) {
 // vector before applying SORF. Function SORF_repeat repeats elements in x1
 // to form a vector x2. The vectors can be the same vector.
 void SORF_repeat(float *const x1, const size_t n1, float *const x2,
-               const size_t n2) {
+                 const size_t n2) {
 	for (size_t i = 0; i < n2; ++i) {
 		if (i < n1) {
 			// Copy from x1 to x2.
@@ -90,3 +91,4 @@ void SORF_repeat(float *const x1, const size_t n1, float *const x2,
 		}
 	}
 }
+#endif

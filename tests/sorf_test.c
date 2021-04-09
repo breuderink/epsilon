@@ -36,8 +36,7 @@ TEST test_FWHT() {
 		FWHT(x, L2D);
 		for (int i = 0; i < 1 << L2D; ++i) {
 			// Test property 1.
-			ASSERTm("Expected fwht(fwht(x)) == d x!",
-			        x[i] == DIMS * x0[i]);
+			ASSERTm("Expected fwht(fwht(x)) == d x!", x[i] == DIMS * x0[i]);
 		}
 	}
 
@@ -101,7 +100,7 @@ TEST test_randflip() {
 
 	// Use approximate biomial 95% confidence interval as test.
 	float p_hat = (float)negs / DIMS;
-	float ci = 1.96 * sqrt(p_hat * (1 - p_hat) / DIMS);
+	float ci = 1.96 * sqrtf(p_hat * (1 - p_hat) / DIMS);
 	ASSERTm("randflip flipped unexpected fraction of array",
 	        0.5 - ci < p_hat && p_hat < 0.5 + ci);
 
@@ -132,7 +131,10 @@ TEST test_repeat() {
 
 SUITE(SORF_tests) {
 	RUN_TEST(test_FWHT);
+
+#ifdef SORF_ENABLED
 	RUN_TEST(test_SORF);
 	RUN_TEST(test_randflip);
 	RUN_TEST(test_repeat);
+#endif
 }

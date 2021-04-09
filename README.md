@@ -1,17 +1,19 @@
 # Epsilon
 Epsilon is a library with small functions for machine learning and statistics
-written in plain C. The functions are well tested and loosely coupled.
+written in plain C. The functions are well tested and decoupled.
 
 ## Motivation
-Mainstream machine learning focuses on large models on powerful hardware, and
-requires large amounts of data. After training, models are frozen and applied
-to new data. The strict separation between model training and application
-make this approach more a different way to design software than an
-intelligent system. In addition, the power and data inefficiency of deep
-learning methods make it hard to apply these models locally.
+Most machine learning focuses on training large models on powerful hardware.
+After training, researchers freeze the models and apply them to new data.
+These models are too big to run on microcontrollers. One can compress these
+models to make them fit. The compressed model can make predictions for new
+data. But the model itself remains static, even if the environment changes.
 
-The epsilon library contains building blocks for both training and using
-machine learning underpowered devices, such as microcontrollers. 
+An alternative approach is to optimise the model on the microcontroller
+itself. In this case, the model can adapt to new data. This requires
+particular memory-efficient algorithms. Further, the optimization process
+should be reliable. Epsilon provides methods to train and apply machine
+learning methods on microcontrollers.
 
 These algorithms should function on microcontrollers, such as the
 [Raspberry Pi Pico](https://www.raspberrypi.org/products/raspberry-pi-pico/),
@@ -22,24 +24,44 @@ or even the [ATtiny85](https://www.microchip.com/wwwproducts/en/attiny85)
 
 To allow machine learning to run on microcontrollers, the implementations:
 
-- Do not use dynamic memory allocation if possible.
-- Favour online over batch operation.
-- Work with fixed-point math when realistic.
-- Are easy to tune.
+- do not use dynamic memory allocation if possible,
+- favour online over batch operation,
+- work with fixed-point math when realistic, and
+- are easy to tune.
+
+# Building
+Epsilon uses CMake for building. Create a build directory, and configure the
+project. In the repository root, configure and build the project. Then run
+the unit tests and the examples with CTest:
+
+```
+$ mkdir build && cd build
+$ cmake ..
+$ cmake --build .
+$ ctest
+```
 
 # Algorithms
-
 ## Pseudo-random number generation
 - [Xorshift](docs/marsaglia2003xrn.pdf) is a fast and simple
 pseudo-random number generator by George Marsaglia that has good statistical
-properties.
+properties. See the xorshift [example](examples/example_xorshift.c).
 
 ## Feature extraction
 - [Structured random orthogonal features](docs/yu2016orf.pdf) (SORF). An `O(d
 log d)` transformation that can be used for a feature map that approximates a
 specific kernel. Here `d` is the number of input dimensions. Note that SORF
-is [patented](https://patents.google.com/patent/US20180114145A1).
+is [patented](https://patents.google.com/patent/US20180114145A1), and that
+compilation is disabled by default.
 
 ## Regression
 - Linear passive-aggressive regression (TODO)
 - Kernelized passive-aggressive regression (TODO)
+- Kernelized passive-aggressive classification (TODO)
+
+
+# Other solutions for Tiny ML or Edge AI
+- [TensorFlow Lite](https://www.tensorflow.org/lite/)
+- [Edge Impulse](https://www.edgeimpulse.com)
+- [Micro ML](https://github.com/eloquentarduino/EloquentMicroML)
+- [Q-behave](https://github.com/smigielski/q-behave)
