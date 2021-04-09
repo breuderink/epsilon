@@ -1,9 +1,9 @@
-# Greatest unit-test dependency. TODO: add hash.
+# Greatest unit-test dependency.
 include(FetchContent)
 FetchContent_Declare(
   greatest
   GIT_REPOSITORY https://github.com/silentbicycle/greatest
-  GIT_TAG v1.5.0
+  GIT_TAG 11a6af1919049df502405913da64fb385c219361 # v1.0.5
 )
 FetchContent_MakeAvailable(greatest)
 
