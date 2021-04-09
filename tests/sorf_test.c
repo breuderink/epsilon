@@ -100,7 +100,7 @@ TEST test_randflip() {
 
 	// Use approximate biomial 95% confidence interval as test.
 	float p_hat = (float)negs / DIMS;
-	float ci = 1.96 * sqrt(p_hat * (1 - p_hat) / DIMS);
+	float ci = 1.96 * sqrtf(p_hat * (1 - p_hat) / DIMS);
 	ASSERTm("randflip flipped unexpected fraction of array",
 	        0.5 - ci < p_hat && p_hat < 0.5 + ci);
 
