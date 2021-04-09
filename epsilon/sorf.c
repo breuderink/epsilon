@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-void static inline WHT_butterfly(float *const s, float *const d) {
+inline static void WHT_butterfly(float *const s, float *const d) {
 	float temp = *s;
 	*s += *d;
 	*d = temp - *d;
