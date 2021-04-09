@@ -29,8 +29,19 @@ To allow machine learning to run on microcontrollers, the implementations:
 - work with fixed-point math when realistic, and
 - are easy to tune.
 
-# Algorithms
+# Building
+Epsilon uses CMake for building. Create a build directory, and configure the
+project. In the repository root, configure and build the project. Then run
+the unit tests and the examples with CTest:
 
+```
+$ mkdir build && cd build
+$ cmake ..
+$ cmake --build .
+$ ctest
+```
+
+# Algorithms
 ## Pseudo-random number generation
 - [Xorshift](docs/marsaglia2003xrn.pdf) is a fast and simple
 pseudo-random number generator by George Marsaglia that has good statistical
@@ -40,27 +51,14 @@ properties. See the xorshift [example](examples/example_xorshift.c).
 - [Structured random orthogonal features](docs/yu2016orf.pdf) (SORF). An `O(d
 log d)` transformation that can be used for a feature map that approximates a
 specific kernel. Here `d` is the number of input dimensions. Note that SORF
-is [patented](https://patents.google.com/patent/US20180114145A1).
+is [patented](https://patents.google.com/patent/US20180114145A1), and that
+compilation is disabled by default.
 
 ## Regression
 - Linear passive-aggressive regression (TODO)
 - Kernelized passive-aggressive regression (TODO)
+- Kernelized passive-aggressive classification (TODO)
 
-# Building
-Epsilon uses CMake for building. Create a build directory, and configure the
-project. In the repository root, configure and build the project:
-
-```
-$ mkdir -p build && cd build
-$ cmake -DCMAKE_BUILD_TYPE=Release ..
-$ cmake --build .
-```
-
-Next, run the unit test using CTest:
-
-```
-$ ctest -C Release
-```
 
 # Other solutions for Tiny ML or Edge AI
 - [TensorFlow Lite](https://www.tensorflow.org/lite/)
