@@ -36,8 +36,7 @@ TEST test_FWHT() {
 		FWHT(x, L2D);
 		for (int i = 0; i < 1 << L2D; ++i) {
 			// Test property 1.
-			ASSERTm("Expected fwht(fwht(x)) == d x!",
-			        x[i] == DIMS * x0[i]);
+			ASSERTm("Expected fwht(fwht(x)) == d x!", x[i] == DIMS * x0[i]);
 		}
 	}
 
@@ -132,7 +131,10 @@ TEST test_repeat() {
 
 SUITE(SORF_tests) {
 	RUN_TEST(test_FWHT);
+
+#ifdef SORF_ENABLED
 	RUN_TEST(test_SORF);
 	RUN_TEST(test_randflip);
 	RUN_TEST(test_repeat);
+#endif
 }
