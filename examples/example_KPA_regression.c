@@ -29,7 +29,7 @@ float target(float x) { return x * x; }
 int main() {
 	float alpha[SUPPORT_VECTORS] = {0};
 	KP_t regressor = {
-	    .num_alpha = SUPPORT_VECTORS, .alpha = &alpha, .kernel = kernel};
+	    .num_alpha = SUPPORT_VECTORS, .alpha = alpha, .kernel = kernel};
 
 	// Train model.
 	for (int pass = 0; pass < 1; ++pass) {
