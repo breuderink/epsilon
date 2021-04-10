@@ -3,7 +3,7 @@
 #include <math.h>
 #include <stddef.h>
 
-float KP_project(KP_t *kp, size_t xi) {
+float KP_apply(KP_t *kp, size_t xi) {
 	float y_hat = 0;
 	for (size_t i = 0; i < kp->num_alpha; ++i) {
 		float a = kp->alpha[i];
@@ -99,7 +99,7 @@ float PA1_regress_update(const PA_t pa, float y_hat, float y) {
 }
 
 float BKPA_regress(KP_t *kp, const PA_t pa, size_t xi, float y) {
-	float y_hat = KP_project(kp, xi);
+	float y_hat = KP_apply(kp, xi);
 	assert(isfinite(y_hat));
 
 	if (isfinite(y)) {
