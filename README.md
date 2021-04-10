@@ -2,6 +2,8 @@
 Epsilon is a library with small functions for machine learning and statistics
 written in plain C. The functions are well tested and decoupled.
 
+[![tests and examples](https://github.com/breuderink/epsilon/actions/workflows/tests.yml/badge.svg)](https://github.com/breuderink/epsilon/actions/workflows/tests.yml)
+
 ## Motivation
 Most machine learning focuses on training large models on powerful hardware.
 After training, researchers freeze the models and apply them to new data.
