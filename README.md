@@ -54,7 +54,8 @@ properties. See the xorshift [example](examples/example_xorshift.c).
 log d)` transformation that can be used for a feature map that approximates a
 specific kernel. Here `d` is the number of input dimensions. Note that SORF
 is [patented](https://patents.google.com/patent/US20180114145A1), and that
-compilation is disabled by default.
+compilation of SORF is disabled by default. Instead one can use a budgeted
+kernel classification or regression.
 
 ## Regression
 - Linear passive-aggressive regression (TODO)
