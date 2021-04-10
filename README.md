@@ -1,6 +1,6 @@
 # Epsilon
 Epsilon is a library with small functions for machine learning and statistics
-written in plain C. The functions are well tested and decoupled.
+written in plain C. The functions are decoupled and well tested.
 
 [![tests and examples](https://github.com/breuderink/epsilon/actions/workflows/tests.yml/badge.svg)](https://github.com/breuderink/epsilon/actions/workflows/tests.yml)
 
@@ -49,6 +49,10 @@ $ ctest
 pseudo-random number generator by George Marsaglia that has good statistical
 properties. See the xorshift [example](examples/example_xorshift.c).
 
+## Online statistics
+- Welfords method for computing mean and variance in one pass
+  ([TODO](https://github.com/breuderink/epsilon/pull/3)).
+
 ## Feature extraction
 - [Structured random orthogonal features](docs/yu2016orf.pdf) (SORF). An `O(d
 log d)` transformation that can be used for a feature map that approximates a
@@ -58,9 +62,9 @@ compilation of SORF is disabled by default. Instead one can use a budgeted
 kernel classification or regression.
 
 ## Regression
-- Linear passive-aggressive regression (TODO)
-- Kernelized passive-aggressive regression (TODO)
-- Kernelized passive-aggressive classification (TODO)
+- Kernelized passive-aggressive regression
+  ([TODO](https://github.com/breuderink/epsilon/pull/6)).
+- Kernelized passive-aggressive classification (TODO).
 
 
 # Other solutions for Tiny ML or Edge AI
