@@ -12,7 +12,7 @@ static float alpha[SUPPORT_VECTORS];
 
 // TODO: refer to book on kernels. The kernel is specific to the problem.
 static float linear_kernel(size_t i, size_t j) {
-	float k = 0;
+	float k = 1; // Include a bias term.
 	k += X[i].position * X[j].position;
 	return k * k;
 }
@@ -20,7 +20,7 @@ static float linear_kernel(size_t i, size_t j) {
 static float kernel(void *instances, size_t i, size_t j) {
 	assert(instances == NULL); // FIXME: update interface.
 	// TODO: provide kernels that wrap linear kernel.
-	float K_ij = linear_kernel(i, j) + 1;
+	float K_ij = linear_kernel(i, j);
 	return K_ij * K_ij;
 }
 
