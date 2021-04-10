@@ -8,7 +8,7 @@ float KP_project(KP_t *kp, size_t xi) {
 	for (size_t i = 0; i < kp->num_alpha; ++i) {
 		float a = kp->alpha[i];
 		if (a != 0) {
-			y_hat += a * kp->kernel(kp->instances, i, xi);
+			y_hat += a * kp->kernel(i, xi);
 		}
 	}
 	return y_hat;
@@ -40,7 +40,7 @@ float BPA_simple(KP_t *kp, size_t t) {
 		float loss;
 	} curr, best = {.r = t, .proj = NAN, .loss = INFINITY};
 
-	const float k_tt = kp->kernel(kp->instances, t, t);
+	const float k_tt = kp->kernel(t, t);
 
 	// Search for instance r to absorb.
 	for (curr.r = 0; curr.r < kp->num_alpha; ++curr.r) {
@@ -62,8 +62,8 @@ float BPA_simple(KP_t *kp, size_t t) {
 		// dl(b)/db = 2ad + 2be = 0.
 		// -> b = -ad/e ->  p = a_r k(r,t)/k(t,t)
 
-		float k_rr = kp->kernel(kp->instances, curr.r, t);
-		float k_rt = kp->kernel(kp->instances, curr.r, t);
+		float k_rr = kp->kernel(curr.r, t);
+		float k_rt = kp->kernel(curr.r, t);
 		curr.proj = a_r * k_rt / k_tt;
 
 		curr.loss = a_r * a_r * k_rr;              // l(b) = aac

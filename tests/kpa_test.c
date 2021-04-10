@@ -9,28 +9,20 @@
 #define SUPPORT_VECTORS 5
 
 // Prepare for easy test setup.
-typedef float X_t[SUPPORT_VECTORS][FEATURE_DIMS];
-typedef float alpha_t[SUPPORT_VECTORS];
+static float X[SUPPORT_VECTORS][FEATURE_DIMS];
 
-static float linear_kernel(void *instances, size_t i, size_t j) {
-	float(*x)[FEATURE_DIMS] = (float(*)[FEATURE_DIMS])instances;
-
+static float linear_kernel(size_t i, size_t j) {
 	float k = 1; // 1 for bias term.
 	for (int f = 0; f < FEATURE_DIMS; ++f) {
-		k += x[i][f] * x[j][f];
+		k += X[i][f] * X[j][f];
 	}
 	return k;
 }
 
-static KP_t setup(X_t X, alpha_t a) {
-	return (KP_t){.instances = X,
-	              .alpha = a,
-	              .num_alpha = SUPPORT_VECTORS,
-	              .kernel = &linear_kernel};
-}
 
 TEST test_idle() {
-	KP_t km = setup((X_t){{0}}, (alpha_t){0, 2, 3, 5, 0});
+	float alpha[SUPPORT_VECTORS] = {0, 2, 3, 5, 0};
+	KP_t km = {.alpha = alpha, .num_alpha= SUPPORT_VECTORS, .kernel = &linear_kernel};
 	ASSERTm("there should be 2 idle SVs!", KP_num_idle(&km) == 2);
 
 	ASSERTm("first idle SV should be in position 0!", KP_find_idle(&km, 0) == 0);

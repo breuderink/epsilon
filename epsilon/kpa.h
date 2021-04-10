@@ -1,9 +1,10 @@
 #include <stddef.h>
 
+typedef float (*kernel_t)(size_t i, size_t j);
+
 typedef struct {
 	float *alpha;
-	void *instances;
-	float (*kernel)(void *instances, size_t i, size_t j);
+	kernel_t kernel;
 	size_t num_alpha;
 } KP_t;
 

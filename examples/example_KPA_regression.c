@@ -17,8 +17,7 @@ static float linear_kernel(size_t i, size_t j) {
 	return k * k;
 }
 
-static float kernel(void *instances, size_t i, size_t j) {
-	assert(instances == NULL); // FIXME: update interface.
+static float kernel(size_t i, size_t j) {
 	// TODO: provide kernels that wrap linear kernel.
 	float K_ij = linear_kernel(i, j);
 	return K_ij * K_ij;
@@ -29,7 +28,7 @@ float target(float x) { return x * x; }
 int main() {
 	float alpha[SUPPORT_VECTORS] = {0};
 	KP_t regressor = {
-	    .num_alpha = SUPPORT_VECTORS, .alpha = alpha, .kernel = kernel};
+	    .num_alpha = SUPPORT_VECTORS, .alpha = alpha, .kernel = &kernel};
 
 	// Train model.
 	for (int pass = 0; pass < 1; ++pass) {
