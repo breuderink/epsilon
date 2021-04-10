@@ -36,12 +36,12 @@ int main() {
 		for (float x = -5; x < 5; x += 0.1) {
 			// Find free slot in regressor, and fill to make kernel aware of new
 			// data.
-			size_t xi = KP_idle(&regressor, 0);
+			size_t xi = KP_find_idle(&regressor, 0);
             assert(regressor.alpha[xi] == 0);
 			X[xi].position = x;
 
 			// Update model.
-			KPA_regress(&regressor, (PA_t){.C = 1e4, .eps = 0.01}, xi,
+			BKPA_regress(&regressor, (PA_t){.C = 1e4, .eps = 0.01}, xi,
 			            target(x));
 		}
 	}
@@ -49,10 +49,10 @@ int main() {
 	// Evaluate model.
 	for (float x = -5; x < 5; x += 0.1) {
 		// Put x in kernel projection.
-		size_t xi = KP_idle(&regressor, 0);
+		size_t xi = KP_find_idle(&regressor, 0);
 		X[xi].position = x;
 		float y_hat =
-		    KPA_regress(&regressor, (PA_t){.C = 1, .eps = 0.1}, xi, NAN);
+		    BKPA_regress(&regressor, (PA_t){.C = 1, .eps = 0.1}, xi, NAN);
 
 		float y = target(x);
 		printf("f(%.2f) = %.2f, target(%.2f) = %.2f.\n", x, y_hat, x, y);

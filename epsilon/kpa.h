@@ -7,9 +7,9 @@ typedef struct {
 	size_t num_alpha;
 } KP_t;
 
-float KP_dot(KP_t *km, size_t x);
+float KP_project(KP_t *km, size_t x);
 size_t KP_num_idle(const KP_t *km);
-size_t KP_idle(const KP_t *km, size_t n);
+size_t KP_find_idle(const KP_t *km, size_t n);
 
 float BPA_simple(KP_t *km, size_t t);
 
@@ -18,4 +18,4 @@ typedef struct {
 	float eps; // insensitive band for regression.
 } PA_t;
 
-float KPA_regress(KP_t *km, const PA_t pa, size_t x, float y);
+float BKPA_regress(KP_t *km, const PA_t pa, size_t x, float y);

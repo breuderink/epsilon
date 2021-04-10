@@ -3,6 +3,17 @@
 #include <math.h>
 #include <stddef.h>
 
+float KP_project(KP_t *kp, size_t xi) {
+	float y_hat = 0;
+	for (size_t i = 0; i < kp->num_alpha; ++i) {
+		float a = kp->alpha[i];
+		if (a != 0) {
+			y_hat += a * kp->kernel(kp->instances, i, xi);
+		}
+	}
+	return y_hat;
+}
+
 size_t KP_num_idle(const KP_t *kp) {
 	size_t c = 0;
 	for (size_t i = 0; i < kp->num_alpha; ++i) {
@@ -11,11 +22,11 @@ size_t KP_num_idle(const KP_t *kp) {
 	return c;
 }
 
-size_t KP_idle(const KP_t *kp, size_t n) {
-	size_t c = n + 1;
+size_t KP_find_idle(const KP_t *kp, size_t idle_index) {
+	size_t c = idle_index + 1;
 	for (size_t i = 0; i < kp->num_alpha; ++i) {
 		c -= kp->alpha[i] == 0;
-		if (!c)
+		if (c == 0)
 			return i;
 	}
 	assert(0);
@@ -76,18 +87,7 @@ float BPA_simple(KP_t *kp, size_t t) {
 	return best.loss;
 }
 
-float KP_dot(KP_t *kp, size_t x) {
-	float y_hat = 0;
-	for (size_t i = 0; i < kp->num_alpha; ++i) {
-		float a = kp->alpha[i];
-		if (a != 0) {
-			y_hat += a * kp->kernel(kp->instances, i, x);
-		}
-	}
-	return y_hat;
-}
-
-float PA_regress_update(const PA_t pa, float y_hat, float y) {
+float PA1_regress_update(const PA_t pa, float y_hat, float y) {
 	assert(pa.eps >= 0);
 	assert(pa.C > 0);
 	assert(isfinite(y_hat));
@@ -98,18 +98,18 @@ float PA_regress_update(const PA_t pa, float y_hat, float y) {
 	return copysign(tau, y - y_hat);
 }
 
-float KPA_regress(KP_t *kp, const PA_t pa, size_t x, float y) {
-	float y_hat = KP_dot(kp, x);
+float BKPA_regress(KP_t *kp, const PA_t pa, size_t xi, float y) {
+	float y_hat = KP_project(kp, xi);
 	assert(isfinite(y_hat));
 
 	if (isfinite(y)) {
 		// Compute loss if y is provided.
-		assert(kp->alpha[x] == 0);
-		kp->alpha[x] = PA_regress_update(pa, y_hat, y);
+		assert(kp->alpha[xi] == 0);
+		kp->alpha[xi] = PA1_regress_update(pa, y_hat, y);
 
 		// Maintain budget.
 		if (KP_num_idle(kp) < 1) {
-			BPA_simple(kp, x);
+			BPA_simple(kp, xi);
 		}
 	}
 
