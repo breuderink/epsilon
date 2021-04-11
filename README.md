@@ -51,12 +51,15 @@ properties. See the xorshift [example](examples/example_xorshift.c).
 
 ## Online statistics
 - Welfords method for computing mean and variance in one pass
-  ([TODO](https://github.com/breuderink/epsilon/pull/3)).
+([TODO](https://github.com/breuderink/epsilon/pull/3)).
 
 ## Feature extraction
-- [Structured random orthogonal features](docs/yu2016orf.pdf) (SORF). An `O(d
-log d)` transformation that can be used for a feature map that approximates a
-specific kernel. Here `d` is the number of input dimensions. Note that SORF
+- Fast Walsh-Hadamard transform (FWHT) implements the Walsh-Hardamard
+transform in O(n log n) time. The FWHT similar to the fast Fourier transform
+and the Haar transform.
+- [Structured random orthogonal features](docs/yu2016orf.pdf) (SORF). An O(d
+log d) transformation that can be used for a feature map that approximates a
+specific kernel. Here _d_ is the number of input dimensions. Note that SORF
 is [patented](https://patents.google.com/patent/US20180114145A1), and that
 compilation of SORF is disabled by default. Instead one can use a budgeted
 kernel classification or regression.

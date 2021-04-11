@@ -5,8 +5,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#define UNIT 1.
-
 #define L2D 8
 #define DIMS (1 << L2D)
 
@@ -23,20 +21,20 @@ TEST test_FWHT() {
 	for (int d = 0; d < DIMS; ++d) {
 		// Set x and x0 to unit vector.
 		memset(x0, 0, sizeof(x));
-		x0[d] = UNIT;
+		x0[d] = 1;
 		memcpy(x, x0, sizeof(x));
 
 		FWHT(x, L2D);
 		for (int i = 0; i < DIMS; ++i) {
 			// Test property 2.
-			ASSERTm("Expected fwht(x) in {-1, 1}^d!",
-			        x[i] == UNIT || x[i] == -UNIT);
+			ASSERTm("Expected FWHT(x) in {-1, 1}^d!",
+			        x[i] == 1 || x[i] == -1);
 		}
 
 		FWHT(x, L2D);
 		for (int i = 0; i < 1 << L2D; ++i) {
 			// Test property 1.
-			ASSERTm("Expected fwht(fwht(x)) == d x!", x[i] == DIMS * x0[i]);
+			ASSERTm("Expected FWHT(FWHT(x)) == d x!", x[i] == DIMS * x0[i]);
 		}
 	}
 
@@ -50,7 +48,7 @@ TEST test_SORF() {
 	for (int d = 0; d < DIMS; ++d) {
 		// Set x and x0 to varying unit vector.
 		memset(x0, 0, sizeof(x));
-		x0[d] = UNIT;
+		x0[d] = 1;
 		memcpy(x, x0, sizeof(x));
 		SORF(x, L2D);
 
@@ -62,8 +60,8 @@ TEST test_SORF() {
 		float ss_after = 0;
 
 		for (int i = 0; i < DIMS; ++i) {
-			ss_before += x0[i] * (x0[i] / (float)UNIT);
-			ss_after += x[i] * (x[i] / (float)UNIT);
+			ss_before += x0[i] * x0[i];
+			ss_after += x[i] * x[i];
 		}
 		ASSERTm("Expected SORF normalization of D^(-1/2)!",
 		        fabs(DIMS * ss_before - ss_after) < 1e-6);
@@ -98,7 +96,7 @@ TEST test_randflip() {
 		negs += x[i] < 0;
 	}
 
-	// Use approximate biomial 95% confidence interval as test.
+	// Use approximate binomial 95% confidence interval as test.
 	float p_hat = (float)negs / DIMS;
 	float ci = 1.96 * sqrtf(p_hat * (1 - p_hat) / DIMS);
 	ASSERTm("randflip flipped unexpected fraction of array",
