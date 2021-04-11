@@ -47,7 +47,7 @@ $ ctest
 ## Pseudo-random number generation
 - [Xorshift](docs/marsaglia2003xrn.pdf) is a fast and simple
 pseudo-random number generator by George Marsaglia that has good statistical
-properties. See the xorshift [example](examples/example_xorshift.c).
+properties. See the [xorshift example](examples/example_xorshift.c).
 
 ## Online statistics
 - Welfords method for computing mean and variance in one pass
@@ -56,7 +56,7 @@ properties. See the xorshift [example](examples/example_xorshift.c).
 ## Feature extraction
 - Fast Walsh-Hadamard transform (FWHT) implements the Walsh-Hardamard
 transform in O(n log n) time. The FWHT similar to the fast Fourier transform
-and the Haar transform.
+and the Haar transform. See the [FWHT example](examples/example_FWHT.c).
 - [Structured random orthogonal features](docs/yu2016orf.pdf) (SORF). An O(d
 log d) transformation that can be used for a feature map that approximates a
 specific kernel. Here _d_ is the number of input dimensions. Note that SORF
