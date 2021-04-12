@@ -11,7 +11,15 @@ void observe(online_stats_t *s, float x) {
 	s->squared_diff += delta * delta2;
 }
 
-float mean(online_stats_t *const s) { return s->mean; }
+float mean(online_stats_t *const s) {
+	switch (s->n) {
+	case 0:
+		return NAN;
+	default:
+		return s->mean;
+	}
+}
+
 float var(online_stats_t *const s) {
 	switch (s->n) {
 	case 0:
