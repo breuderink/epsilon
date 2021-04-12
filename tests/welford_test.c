@@ -12,7 +12,15 @@ TEST welford_test_mean() {
 	PASS();
 }
 
-TEST welford_test_var() { FAILm("Implement me."); }
+TEST welford_test_var() {
+	online_stats_t s = {0};
+
+	for (int i = 0; i < 10; ++i) {
+		observe(&s, i);
+	}
+	ASSERT_IN_RANGE(var(&s), 8.25, 1e-6);
+	PASS();
+}
 
 TEST welford_edge_cases(float mu, float sigma) {
 	online_stats_t s = {0};
