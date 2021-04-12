@@ -2,6 +2,10 @@
 #include <greatest.h>
 #include <math.h>
 
+TEST welford_test_mean() { FAILm("Implement me."); }
+
+TEST welford_test_var() { FAILm("Implement me."); }
+
 TEST welford_edge_cases(float mu, float sigma) {
 	online_stats_t s = {0};
 	ASSERTm("Mean before observations should be NaN!", isnan(mean(&s)));
@@ -19,6 +23,9 @@ TEST welford_edge_cases(float mu, float sigma) {
 }
 
 SUITE(Welford) {
+	RUN_TEST(welford_test_mean);
+	RUN_TEST(welford_test_var);
+
 	RUN_TESTp(welford_edge_cases, 0, 1);
 	RUN_TESTp(welford_edge_cases, 1, 1);
 	RUN_TESTp(welford_edge_cases, -5, 2);
