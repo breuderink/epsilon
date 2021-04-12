@@ -4,6 +4,7 @@
 
 void observe(online_stats_t *s, float x) {
 	s->n++;
+
 	float delta = (x - s->mean);
 	s->mean += delta / s->n;
 
@@ -27,6 +28,6 @@ float var(online_stats_t *const s) {
 	case 1:
 		return 0;
 	default:
-		return s->squared_diff / (s->n - 1);
+		return s->squared_diff / s->n;
 	}
 }

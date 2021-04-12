@@ -9,11 +9,11 @@ TEST welford_edge_cases(float mu, float sigma) {
 
 	observe(&s, mu - sigma);
 	ASSERT_EQ_FMT(mean(&s), mu - sigma, "%f");
-	ASSERT_EQ_FMT(var(&s), 0, "%f");
+	ASSERT_EQ_FMT(var(&s), 0.0, "%f");
 
 	observe(&s, mu + sigma);
 	ASSERT_EQ_FMT(mean(&s), mu, "%f");
-	ASSERT_EQ_FMT(var(&s), sigma * sigma, "%f");
+	ASSERT_IN_RANGE(var(&s), sigma * sigma, 1e-4);
 
 	PASS();
 }
