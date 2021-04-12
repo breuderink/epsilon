@@ -3,7 +3,8 @@
 #include <stddef.h>
 
 void observe(online_stats_t *s, float x) {
-	s->n++;
+	if (s->n < SIZE_MAX)
+		s->n++;
 
 	float delta = (x - s->mean);
 	s->mean += delta / s->n;
