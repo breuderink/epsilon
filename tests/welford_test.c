@@ -2,7 +2,15 @@
 #include <greatest.h>
 #include <math.h>
 
-TEST welford_test_mean() { FAILm("Implement me."); }
+TEST welford_test_mean() {
+	online_stats_t s = {0};
+
+	for (int i = 0; i < 10; ++i) {
+		observe(&s, i);
+		ASSERT_IN_RANGE(mean(&s), i / 2.0f, 1e-6);
+	}
+	PASS();
+}
 
 TEST welford_test_var() { FAILm("Implement me."); }
 
