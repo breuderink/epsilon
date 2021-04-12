@@ -27,7 +27,7 @@ TEST welford_test_var(float mu, float sigma) {
 
 	for (int i = 0; i < 10; ++i) {
 		observe(&s, mu + (i % 2) * sigma);
-		if (i >= 2) {
+		if (i > 0) {
 			ASSERT_IN_RANGE(var(&s), sigma * sigma, 1e-4);
 		}
 	}
