@@ -5,8 +5,12 @@
 uint32_t xorshift32(uint32_t y);
 
 typedef struct {
-	size_t n;
 	float mean, squared_diff;
+} Welfords_method_t;
+
+typedef struct {
+	size_t n;
+    Welfords_method_t Welford;
 } online_stats_t;
 
 void observe(online_stats_t *s, float x);

@@ -1,20 +1,25 @@
 #include "epsilon.h"
+#include <assert.h>
 #include <math.h>
 #include <stddef.h>
-#include <assert.h>
+
+void Welford_observe(Welfords_method_t *w, size_t n, float x) {
+	float delta_before = (x - w->mean);
+	w->mean += delta_before / n;
+	assert(isfinite(w->mean));
+
+	float delta_after = (x - w->mean);
+	w->squared_diff += delta_before * delta_after;
+	assert(isfinite(w->squared_diff));
+}
 
 void observe(online_stats_t *s, float x) {
 	assert(isfinite(x));
-	if (s->n < SIZE_MAX)
+	if (s->n < SIZE_MAX) {
 		s->n++;
+	}
 
-	float delta = (x - s->mean);
-	s->mean += delta / s->n;
-	assert(isfinite(s->mean));
-
-	float delta2 = (x - s->mean);
-	s->squared_diff += delta * delta2;
-	assert(isfinite(s->squared_diff));
+	Welford_observe(&s->Welford, s->n, x);
 }
 
 float mean(const online_stats_t *s) {
@@ -22,7 +27,7 @@ float mean(const online_stats_t *s) {
 	case 0:
 		return NAN;
 	default:
-		return s->mean;
+		return s->Welford.mean;
 	}
 }
 
@@ -33,6 +38,6 @@ float var(const online_stats_t *s) {
 	case 1:
 		return 0;
 	default:
-		return s->squared_diff / s->n;
+		return s->Welford.squared_diff / s->n;
 	}
 }
