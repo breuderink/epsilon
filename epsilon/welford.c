@@ -17,7 +17,7 @@ void observe(online_stats_t *s, float x) {
 	assert(isfinite(s->squared_diff));
 }
 
-float mean(online_stats_t *const s) {
+float mean(const online_stats_t *s) {
 	switch (s->n) {
 	case 0:
 		return NAN;
@@ -26,7 +26,7 @@ float mean(online_stats_t *const s) {
 	}
 }
 
-float var(online_stats_t *const s) {
+float var(const online_stats_t *s) {
 	switch (s->n) {
 	case 0:
 		return NAN;

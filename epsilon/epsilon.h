@@ -10,8 +10,8 @@ typedef struct {
 } online_stats_t;
 
 void observe(online_stats_t *s, float x);
-float mean(online_stats_t *const s);
-float var(online_stats_t *const s);
+float mean(const online_stats_t *s);
+float var(const online_stats_t *s);
 
 // Perform in-place Fast Walsh-Hadamard transform.
 void FWHT(float *x, uint8_t nbits);
