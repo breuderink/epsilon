@@ -22,18 +22,6 @@ TEST welford_test_var100() {
 	PASS();
 }
 
-TEST welford_test_var(float mu, float sigma) {
-	online_stats_t s = {0};
-
-	for (int i = 0; i < 10; ++i) {
-		observe(&s, mu + (i % 2) * sigma);
-		if (i > 0) {
-			ASSERT_IN_RANGE(sigma * sigma, var(&s), 1e-4);
-		}
-	}
-	PASS();
-}
-
 TEST welford_edge_cases(float mu, float sigma) {
 	online_stats_t s = {0};
 	ASSERTm("Mean before observations should be NaN!", isnan(mean(&s)));
@@ -53,9 +41,6 @@ TEST welford_edge_cases(float mu, float sigma) {
 SUITE(Welford) {
 	RUN_TEST(welford_test_mean);
 	RUN_TEST(welford_test_var100);
-
-	RUN_TESTp(welford_test_var, 0, 1);
-	RUN_TESTp(welford_test_var, 1e4, 0.1);
 
 	RUN_TESTp(welford_edge_cases, 0, 1);
 	RUN_TESTp(welford_edge_cases, 1, 1);
