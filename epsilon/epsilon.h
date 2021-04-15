@@ -1,6 +1,5 @@
 #include <stddef.h>
 #include <stdint.h>
-#include <stddef.h>
 
 uint32_t xorshift32(uint32_t y);
 
@@ -11,7 +10,7 @@ typedef struct {
 
 typedef struct {
 	size_t n;
-    Welfords_method_t Welford;
+	Welfords_method_t Welford;
 } online_stats_t;
 
 // Update online statistics with observation.
@@ -25,7 +24,6 @@ float pvariance(const online_stats_t *s);
 
 // Current sample variance.
 float variance(const online_stats_t *s);
-
 
 // Perform in-place Fast Walsh-Hadamard transform.
 void FWHT(float *x, uint8_t nbits);
