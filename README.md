@@ -50,8 +50,8 @@ pseudo-random number generator by George Marsaglia that has good statistical
 properties. See the [xorshift example](examples/example_xorshift.c).
 
 ## Online statistics
-- Welfords method for computing mean and variance in one pass
-([TODO](https://github.com/breuderink/epsilon/pull/3)).
+- Welfords method for computing mean and variance in one pass. See the
+[example of Welford's method](examples/example_Welfords_method.c).
 
 ## Feature extraction
 - Fast Walsh-Hadamard transform (FWHT) implements the Walsh-Hardamard
