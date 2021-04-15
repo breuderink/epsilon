@@ -32,12 +32,10 @@ float mean(const online_stats_t *s) {
 }
 
 float pvariance(const online_stats_t *s) {
-	switch (s->n) {
-	case 0:
-		return NAN;
-	case 1:
-		return 0;
-	default:
-		return s->Welford.squared_diff / s->n;
-	}
+	return s->Welford.squared_diff / s->n;
+}
+
+float variance(const online_stats_t *s) {
+	float n = s->n;
+	return n * pvariance(s) / (n - 1);
 }
