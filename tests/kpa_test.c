@@ -1,6 +1,6 @@
 #include "kpa.h"
-#include <greatest.h>
 #include <assert.h>
+#include <greatest.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,7 +12,7 @@
 static void *support_vectors;
 static float linear_kernel(size_t i, size_t j) {
 	float k = 1; // 1 for bias term.
-	float (*X)[FEATURE_DIMS] = support_vectors;
+	float(*X)[FEATURE_DIMS] = support_vectors;
 	for (int f = 0; f < FEATURE_DIMS; ++f) {
 		k += X[i][f] * X[j][f];
 	}
@@ -20,32 +20,71 @@ static float linear_kernel(size_t i, size_t j) {
 }
 
 TEST test_kernel_projection() {
-	SKIP();
+	// Set up kernel.
+	float X[SUPPORT_VECTORS][FEATURE_DIMS] = {
+	    {1, 0}, {2, 0}, {3, 0}, {5, 0}, {0, 7},
+	};
+
+	/* Test kernel.
+	>>> import numpy as np
+	>>> X = np.asarray([[1,0],[2,0],[3,0],[5,0],[0,7]])
+	>>> K = X@X.T + 1
+	>>> K
+	array([[ 2,  3,  4,  6,  1],
+	       [ 3,  5,  7, 11,  1],
+	       [ 4,  7, 10, 16,  1],
+	       [ 6, 11, 16, 26,  1],
+	       [ 1,  1,  1,  1, 50]])
+	*/
+	support_vectors = &X;
+	ASSERT_IN_RANGE(25 + 1, linear_kernel(3, 3), 1e-8);
+	ASSERT_IN_RANGE(1, linear_kernel(4, 0), 1e-8);
+	ASSERT_IN_RANGE(49 + 1, linear_kernel(4, 4), 1e-8);
+
+	// Set up projection.
+	float alpha[SUPPORT_VECTORS] = {1, -2, 3, -5, 7};
+	KP_t km = {
+	    .alpha = alpha,
+	    .num_alpha = SUPPORT_VECTORS,
+	    .kernel = &linear_kernel,
+	};
+
+	/* Test projection.
+	>>> a = np.asarray([1, -2, 3, -5, 7])
+	>>> K @ a
+	array([-15, -34, -53, -91, 347])
+	*/
+	ASSERT_IN_RANGE(-15, KP_apply(&km, 0), 1e-8);
+	ASSERT_IN_RANGE(-34, KP_apply(&km, 1), 1e-8);
+	ASSERT_IN_RANGE(-53, KP_apply(&km, 2), 1e-8);
+	ASSERT_IN_RANGE(-91, KP_apply(&km, 3), 1e-8);
+	ASSERT_IN_RANGE(347, KP_apply(&km, 4), 1e-8);
+
+	PASS();
 }
 
-TEST test_PA_regression() {
-	SKIP();
-}
+TEST test_PA_regression() { SKIP(); }
 
-TEST test_KPA_regression() {
-	SKIP();
-}
-
+TEST test_KPA_regression() { SKIP(); }
 
 TEST test_idle() {
 	float X[SUPPORT_VECTORS][FEATURE_DIMS];
 	float alpha[SUPPORT_VECTORS] = {0, 2, 3, 5, 0};
 
 	support_vectors = &X;
-	KP_t km = {.alpha = alpha, .num_alpha= SUPPORT_VECTORS, .kernel = &linear_kernel};
+	KP_t km = {
+	    .alpha = alpha, .num_alpha = SUPPORT_VECTORS, .kernel = &linear_kernel};
 	ASSERTm("there should be 2 idle SVs!", KP_num_idle(&km) == 2);
 
-	ASSERTm("first idle SV should be in position 0!", KP_find_idle(&km, 0) == 0);
-	ASSERTm("second idle SV should be in position 4!", KP_find_idle(&km, 1) == 4);
+	ASSERTm("first idle SV should be in position 0!",
+	        KP_find_idle(&km, 0) == 0);
+	ASSERTm("second idle SV should be in position 4!",
+	        KP_find_idle(&km, 1) == 4);
 
 	km.alpha[0] = -1;
 	ASSERTm("there should be 1 idle SVs!", KP_num_idle(&km) == 1);
-	ASSERTm("first idle SV should be in position 4!", KP_find_idle(&km, 0) == 4);
+	ASSERTm("first idle SV should be in position 4!",
+	        KP_find_idle(&km, 0) == 4);
 
 	// TODO: should we test out-of-range calls?
 	return 0;
