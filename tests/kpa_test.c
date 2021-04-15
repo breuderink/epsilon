@@ -8,11 +8,11 @@
 #define FEATURE_DIMS 2
 #define SUPPORT_VECTORS 5
 
-// Prepare for easy test setup.
-static float X[SUPPORT_VECTORS][FEATURE_DIMS];
-
+// Use global pointer to point kernel to a set of instances.
+static void *support_vectors;
 static float linear_kernel(size_t i, size_t j) {
 	float k = 1; // 1 for bias term.
+	float (*X)[FEATURE_DIMS] = support_vectors;
 	for (int f = 0; f < FEATURE_DIMS; ++f) {
 		k += X[i][f] * X[j][f];
 	}
@@ -33,7 +33,10 @@ TEST test_KPA_regression() {
 
 
 TEST test_idle() {
+	float X[SUPPORT_VECTORS][FEATURE_DIMS];
 	float alpha[SUPPORT_VECTORS] = {0, 2, 3, 5, 0};
+
+	support_vectors = &X;
 	KP_t km = {.alpha = alpha, .num_alpha= SUPPORT_VECTORS, .kernel = &linear_kernel};
 	ASSERTm("there should be 2 idle SVs!", KP_num_idle(&km) == 2);
 
