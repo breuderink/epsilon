@@ -18,22 +18,22 @@ TEST welford_test_var100() {
 	for (int i = 0; i < 10; ++i) {
 		observe(&s, i);
 	}
-	ASSERT_IN_RANGE(8.25, var(&s), 1e-6);
+	ASSERT_IN_RANGE(8.25, pvariance(&s), 1e-6);
 	PASS();
 }
 
 TEST welford_edge_cases(float mu, float sigma) {
 	online_stats_t s = {0};
 	ASSERTm("Mean before observations should be NaN!", isnan(mean(&s)));
-	ASSERTm("Variance before observations should be NaN!", isnan(var(&s)));
+	ASSERTm("Variance before observations should be NaN!", isnan(pvariance(&s)));
 
 	observe(&s, mu - sigma);
 	ASSERT_EQ_FMT(mean(&s), mu - sigma, "%f");
-	ASSERT_EQ_FMT(var(&s), 0.0, "%f");
+	ASSERT_EQ_FMT(pvariance(&s), 0.0, "%f");
 
 	observe(&s, mu + sigma);
 	ASSERT_EQ_FMT(mean(&s), mu, "%f");
-	ASSERT_IN_RANGE(sigma * sigma, var(&s), 1e-4);
+	ASSERT_IN_RANGE(sigma * sigma, pvariance(&s), 1e-4);
 
 	PASS();
 }

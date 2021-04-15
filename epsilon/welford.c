@@ -31,7 +31,7 @@ float mean(const online_stats_t *s) {
 	}
 }
 
-float var(const online_stats_t *s) {
+float pvariance(const online_stats_t *s) {
 	switch (s->n) {
 	case 0:
 		return NAN;

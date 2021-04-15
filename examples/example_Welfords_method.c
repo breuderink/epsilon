@@ -8,10 +8,10 @@ int main() {
 		float observation = i % 2;
 		observe(&stats, observation);
 
-        float mean_est = mean(&stats);
-        float var_est = var(&stats);
-		printf("Observed %.2f -> updated mean to %.2f and variance to %.2f.\n",
-		       observation, mean_est, var_est);
+        float mean_o = mean(&stats);
+        float pvar_o = pvariance(&stats);
+		printf("Observed %.2f -> mean = %.2f, pop. variance = %.2f.\n",
+		       observation, mean_o, pvar_o);
 	}
 	return 0;
 }
