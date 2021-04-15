@@ -14,17 +14,6 @@ float KP_apply(KP_t *kp, size_t xi) {
 	return y_hat;
 }
 
-float PA1_regress_update(const PA_t pa, float y_hat, float y) {
-	assert(pa.eps >= 0);
-	assert(pa.C > 0);
-	assert(isfinite(y_hat));
-	assert(isfinite(y));
-
-	float loss = fmaxf(0, fabs(y - y_hat) - pa.eps);
-	float tau = fminf(pa.C, loss); // PA-1. FIXME: a factor ||x||^2 is missing!
-	return copysign(tau, y - y_hat);
-}
-
 // Functions to maintain KP budget.
 size_t KP_num_idle(const KP_t *kp) {
 	size_t c = 0;
@@ -106,9 +95,13 @@ float BKPA_regress(KP_t *kp, const PA_t pa, size_t x_i, float y) {
 	if (isfinite(y)) {
 		// Compute loss if y is provided.
 		assert(kp->alpha[x_i] == 0);
-		float loss = fmaxf(0, fabs(y_hat - y) - pa.eps);
-		kp->alpha[x_i] =
-		    copysign(fminf(pa.C, loss / kp->kernel(x_i, x_i)), y - y_hat);
+		float error = y_hat - y;
+		float loss = fmaxf(0, fabs(error) - pa.eps);
+		float xx = kp->kernel(x_i, x_i);
+		kp->alpha[x_i] = copysignf(fminf(pa.C, loss / xx), -error);
+
+		float y_hat2 = KP_apply(kp, x_i);
+		assert(fabsf(y_hat2 - y) <= pa.eps);
 
 		// Maintain budget.
 		if (KP_num_idle(kp) < 1) {

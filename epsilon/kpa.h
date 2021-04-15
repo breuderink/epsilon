@@ -5,7 +5,6 @@ typedef struct {
 	float C;   // aggressive updates with high C.
 	float eps; // insensitive band for regression.
 } PA_t;
-float PA1_regress_update(const PA_t pa, float y_hat, float y);
 
 typedef float (*kernel_t)(size_t i, size_t j);
 

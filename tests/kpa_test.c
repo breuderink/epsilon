@@ -63,36 +63,6 @@ TEST test_kernel_projection() {
 	PASS();
 }
 
-TEST test_PA_regression() {
-	for (float eps = 0; eps < 5; eps += 0.1) {
-		// Specify margin with hard updates.
-		PA_t hard = {.C = INFINITY, .eps = eps};
-		for (float target = -5; target < 5; target += 0.1) {
-			for (float pred = -3; pred < 3; pred += 0.1) {
-				float change = PA1_regress_update(hard, pred, target);
-				ASSERT(isfinite(change));
-
-				if (fabsf(pred - target) > eps) {
-					// Aggressive update.
-					ASSERT_IN_RANGE(eps, fabs(pred + change - target), 1e-4);
-				} else {
-					// Passive, no update is needed.
-					ASSERT_EQ_FMT(0.0, change, "%.f");
-				}
-			}
-		}
-	}
-
-	// Test soft variant.
-	PA_t soft = {.C = 1, .eps = 0};
-	for (float target = -10; target <= 10; ++target) {
-		float change = PA1_regress_update(soft, 0, target);
-		ASSERT(fabsf(change) <= soft.C);
-	}
-
-	PASS();
-}
-
 TEST test_KPA_regression() { SKIP(); }
 
 TEST test_idle() {
@@ -119,7 +89,6 @@ TEST test_idle() {
 }
 
 SUITE(KPA_tests) {
-	RUN_TEST(test_PA_regression);
 	RUN_TEST(test_kernel_projection);
 	RUN_TEST(test_KPA_regression);
 	RUN_TEST(test_idle);
