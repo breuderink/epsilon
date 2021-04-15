@@ -14,5 +14,6 @@ add_subdirectory(examples)
 
 # Installation
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
 set(CPACK_PACKAGE_CONTACT boris@cortext.nl)
 include(CPack)
