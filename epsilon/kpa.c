@@ -21,7 +21,7 @@ float PA1_regress_update(const PA_t pa, float y_hat, float y) {
 	assert(isfinite(y));
 
 	float loss = fmaxf(0, fabs(y - y_hat) - pa.eps);
-	float tau = fminf(pa.C, loss); // PA-1.
+	float tau = fminf(pa.C, loss); // PA-1. FIXME: a factor ||x||^2 is missing!
 	return copysign(tau, y - y_hat);
 }
 
@@ -99,18 +99,20 @@ float BPA_simple(KP_t *kp, size_t t) {
 	return best.loss;
 }
 
-float BKPA_regress(KP_t *kp, const PA_t pa, size_t xi, float y) {
-	float y_hat = KP_apply(kp, xi);
+float BKPA_regress(KP_t *kp, const PA_t pa, size_t x_i, float y) {
+	float y_hat = KP_apply(kp, x_i);
 	assert(isfinite(y_hat));
 
 	if (isfinite(y)) {
 		// Compute loss if y is provided.
-		assert(kp->alpha[xi] == 0);
-		kp->alpha[xi] = PA1_regress_update(pa, y_hat, y);
+		assert(kp->alpha[x_i] == 0);
+		float loss = fmaxf(0, fabs(y_hat - y) - pa.eps);
+		kp->alpha[x_i] =
+		    copysign(fminf(pa.C, loss / kp->kernel(x_i, x_i)), y - y_hat);
 
 		// Maintain budget.
 		if (KP_num_idle(kp) < 1) {
-			BPA_simple(kp, xi);
+			BPA_simple(kp, x_i);
 		}
 	}
 
