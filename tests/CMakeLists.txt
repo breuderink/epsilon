@@ -3,12 +3,12 @@ include(FetchContent)
 FetchContent_Declare(
   greatest
   GIT_REPOSITORY https://github.com/silentbicycle/greatest
-  GIT_TAG 11a6af1919049df502405913da64fb385c219361 # v1.0.5
+  GIT_TAG 11a6af1919049df502405913da64fb385c219361 # v1.5.0
 )
 FetchContent_MakeAvailable(greatest)
 
 # Define test executable.
-add_executable(epsilon_test main.c rng_test.c sorf_test.c kpa_test.c)
+add_executable(epsilon_test main.c rng_test.c welford_test.c sorf_test.c kpa_test.c)
 target_include_directories(epsilon_test PRIVATE ${greatest_SOURCE_DIR})
 target_link_libraries(epsilon_test epsilon m)
 
