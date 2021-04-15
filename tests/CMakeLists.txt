@@ -8,7 +8,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(greatest)
 
 # Define test executable.
-add_executable(epsilon_test main.c rng_test.c sorf_test.c)
+add_executable(epsilon_test main.c rng_test.c sorf_test.c welford_test.c)
 target_include_directories(epsilon_test PRIVATE ${greatest_SOURCE_DIR})
 target_link_libraries(epsilon_test epsilon m)
 
