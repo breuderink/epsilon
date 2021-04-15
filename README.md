@@ -67,6 +67,8 @@ kernel classification or regression.
 ## Regression
 - Kernelized passive-aggressive regression
   ([TODO](https://github.com/breuderink/epsilon/pull/6)).
+
+## Classification
 - Kernelized passive-aggressive classification (TODO).
 
 
