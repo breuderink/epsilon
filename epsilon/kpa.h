@@ -1,7 +1,15 @@
 #include <stddef.h>
 
+// Hyper-parameters for the passive-aggressive family of algorithms.
+typedef struct {
+	float C;   // aggressive updates with high C.
+	float eps; // insensitive band for regression.
+} PA_t;
+float PA1_regress_update(const PA_t pa, float y_hat, float y);
+
 typedef float (*kernel_t)(size_t i, size_t j);
 
+// Kernel projection used to implement kernel passive-aggressive algorithms.
 typedef struct {
 	float *alpha;
 	size_t num_alpha;
@@ -20,11 +28,6 @@ size_t KP_find_idle(const KP_t *km, size_t n);
 // Reduce budget kernel of projection by absorbing a support vector into last.
 float BPA_simple(KP_t *km, size_t last);
 
-// Hyper-parameters for the passive-aggressive family of algorithms.
-typedef struct {
-	float C;   // aggressive updates with high C.
-	float eps; // insensitive band for regression.
-} PA_t;
 
 // Perform budgeted PA regression. Target y can be NAN.
 float BKPA_regress(KP_t *km, const PA_t pa, size_t xi, float y);

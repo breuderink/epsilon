@@ -14,6 +14,18 @@ float KP_apply(KP_t *kp, size_t xi) {
 	return y_hat;
 }
 
+float PA1_regress_update(const PA_t pa, float y_hat, float y) {
+	assert(pa.eps >= 0);
+	assert(pa.C > 0);
+	assert(isfinite(y_hat));
+	assert(isfinite(y));
+
+	float loss = fmaxf(0, fabs(y - y_hat) - pa.eps);
+	float tau = fminf(pa.C, loss); // PA-1.
+	return copysign(tau, y - y_hat);
+}
+
+// Functions to maintain KP budget.
 size_t KP_num_idle(const KP_t *kp) {
 	size_t c = 0;
 	for (size_t i = 0; i < kp->num_alpha; ++i) {
@@ -85,17 +97,6 @@ float BPA_simple(KP_t *kp, size_t t) {
 	kp->alpha[best.r] = 0;
 
 	return best.loss;
-}
-
-float PA1_regress_update(const PA_t pa, float y_hat, float y) {
-	assert(pa.eps >= 0);
-	assert(pa.C > 0);
-	assert(isfinite(y_hat));
-	assert(isfinite(y));
-
-	float loss = fmaxf(0, fabs(y - y_hat) - pa.eps);
-	float tau = fminf(pa.C, loss); // PA-1.
-	return copysign(tau, y - y_hat);
 }
 
 float BKPA_regress(KP_t *kp, const PA_t pa, size_t xi, float y) {
