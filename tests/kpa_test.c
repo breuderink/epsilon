@@ -19,6 +19,18 @@ static float linear_kernel(size_t i, size_t j) {
 	return k;
 }
 
+TEST test_kernel_projection() {
+	SKIP();
+}
+
+TEST test_PA_regression() {
+	SKIP();
+}
+
+TEST test_KPA_regression() {
+	SKIP();
+}
+
 
 TEST test_idle() {
 	float alpha[SUPPORT_VECTORS] = {0, 2, 3, 5, 0};
@@ -37,5 +49,8 @@ TEST test_idle() {
 }
 
 SUITE(KPA_tests) {
+	RUN_TEST(test_PA_regression);
+	RUN_TEST(test_kernel_projection);
+	RUN_TEST(test_KPA_regression);
 	RUN_TEST(test_idle);
 }
