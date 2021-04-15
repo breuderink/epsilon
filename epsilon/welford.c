@@ -27,12 +27,9 @@ void observe(online_stats_t *s, float x) {
 }
 
 float mean(const online_stats_t *s) {
-	switch (s->n) {
-	case 0:
+	if (s->n == 0)
 		return NAN;
-	default:
-		return s->Welford.mean;
-	}
+	return s->Welford.mean;
 }
 
 float pvariance(const online_stats_t *s) {
