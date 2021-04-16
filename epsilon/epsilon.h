@@ -37,6 +37,33 @@ void SORF(float *x, uint8_t nbits);
 // SORF.
 void SORF_repeat(float *x1, size_t n1, float *x2, size_t n2);
 
+
+// Kernel projection used to implement kernel passive-aggressive algorithms.
+typedef float (*kernel_t)(size_t i, size_t j);
+typedef struct {
+	float *alpha;
+	size_t num_alpha;
+	kernel_t kernel;
+} KP_t;
+
+// Apply kernel projection to input x1.
+float KP_apply(KP_t *km, size_t x1);
+
+// Get n-th idle (i.e. alpha=0) instance of kernel projection.
+size_t KP_find_idle(const KP_t *km, size_t n);
+
+// Passive-aggressive parameters.
+typedef struct {
+	float C;   // Perform aggressive updates with high C.
+	float eps; // Size of insensitive band for regression.
+} PA_t;
+
+// Perform kernel PA regression. Target y can be NAN for inference.
+float KPA_regress(KP_t *km, const PA_t pa, size_t xi, float y);
+
+// Perform budgeted PA regression. Target y can be NAN.
+float BKPA_regress(KP_t *km, const PA_t pa, size_t xi, float y);
+
 /*
 # References
 [1] Felix, X. Yu, et al. "Orthogonal random features." Advances in Neural

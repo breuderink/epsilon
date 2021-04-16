@@ -1,9 +1,12 @@
-#include "kpa.h"
+#include "epsilon.h"
 #include <assert.h>
 #include <greatest.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+// Find number of non-support vectors.
+size_t KP_num_idle(const KP_t *km);
 
 #define FEATURE_DIMS 2
 #define SUPPORT_VECTORS 5
