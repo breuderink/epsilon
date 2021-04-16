@@ -5,67 +5,49 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define SUPPORT_VECTORS 512
+#define BUDGET 64
 
 // Data for kernel projection.
-static struct { float position; } X[SUPPORT_VECTORS] = {0};
-static float alpha[SUPPORT_VECTORS];
+static struct { float position; } instances[BUDGET] = {0};
+static float alpha[BUDGET];
 
 // TODO: refer to book on kernels. The kernel is specific to the problem.
-static float linear_kernel(size_t i, size_t j) {
-	float dot;
-	dot += X[i].position * X[j].position;
-	return dot;
-}
-
-// TODO: provide kernels that wrap linear kernel.
 static float kernel(size_t i, size_t j) {
-	float K_ij = 1 + linear_kernel(i, j);
-	return K_ij; // * K_ij;
+	float dot = 1;
+	dot += instances[i].position * instances[j].position;
+	return dot * dot;
 }
-
-float target(float x) { return x + 10; }
 
 int main() {
-	float alpha[SUPPORT_VECTORS] = {0};
+	PA_t PA = {.C = INFINITY, .eps = 0.1};
+
+	// Define regressor.
+	float alpha[BUDGET] = {0};
 	KP_t regressor = {
-	    .num_alpha = SUPPORT_VECTORS,
 	    .alpha = alpha,
+	    .num_alpha = BUDGET,
 	    .kernel = &kernel,
 	};
-	PA_t hyper_params = {.C = INFINITY, .eps = 0};
 
-	// Train model.
-	for (int t = 0; t < 32; ++t) {
-		// Find free slot in regressor, and fill to make kernel aware of new
-		// data.
-		float u = rand() / (float)RAND_MAX;
-		float x = 10 * u - 5;
+	online_stats_t loss = {0};
 
-		for (int r = 0; r < 2; ++r) {
-			size_t x_i = KP_find_idle(&regressor, 0);
-			assert(regressor.alpha[x_i] == 0);
-			X[x_i].position = x;
+	for (size_t i = 0; i < BUDGET; ++i) {
+		// Initialize instance with input so that the kernel can access it.
+		float input = 10 * (rand() / (float)RAND_MAX) - 5;
+		instances[i].position = input;
 
-			// Update model.
-			float y = target(x);
-			float y_hat = BKPA_regress(&regressor, hyper_params, x_i, y);
-			float error = y_hat - y;
-			printf("x_i = %zu, (%.2f) \t = %.2f, \t error = %.2f.\n", x_i, x, y_hat,
-				error);
-		}
+		// Predict on new input.
+		float prediction = KPA_regress(&regressor, PA, i, NAN);
+
+		// Train model. This can be combined with previous step.
+		float target = input * input - 10;
+		KPA_regress(&regressor, PA, i, target);
+
+		// Track loss.
+		float l = fmaxf(0, fabsf(prediction - target) - PA.eps);
+		observe(&loss, l);
 	}
 
-	/*
-	// Evaluate model.
-	for (float x = -5; x < 5; x += 0.1) {
-	    // Put x in kernel projection.
-	    size_t xi = KP_find_idle(&regressor, 0);
-	    X[xi].position = x;
-
-	    float y_hat = BKPA_regress(&regressor, hyper_params, xi, NAN);
-	    printf("f(%.2f) = %.2f, target(%.2f) = %.2f.\n", x, y_hat, x,
-	           target(x));
-	}
-	*/
+	// Display performance.
+	printf("Loss %.2f (%.2f).\n", mean(&loss), sqrtf(variance(&loss)));
 }
