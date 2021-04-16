@@ -16,7 +16,7 @@ inputs, and should be adapted to the problem.
 kernels: support vector machines, regularization, optimization, and beyond.
 MIT press, 2002. */
 
-#define BUDGET 64
+#define BUDGET 128
 static input_t instances[BUDGET] = {0};
 static float linear_kernel(size_t i, size_t j) {
 	float dot = 1; // Use 1 to implicitly use a bias term.
@@ -31,11 +31,11 @@ static float Gaussian_kernel(size_t a, size_t b) {
 
 	// (a - b)^T (a - b) = a^T a - 2 a^T b + b^T b.
 	float squared_dist = k_aa - 2 * k_ab + k_bb;
-	return expf(-squared_dist * 0.3);
+	return expf(-squared_dist * 0.5);
 }
 
 int main() {
-	PA_t PA = {.C = 1000, .eps = 0.1};
+	PA_t PA = {.C = 100, .eps = 0.1};
 
 	// Define regressor.
 	float alpha[BUDGET] = {0};
@@ -47,7 +47,7 @@ int main() {
 
 	online_stats_t loss = {0};
 
-	for (size_t t = 0; t < 10*BUDGET; ++t) {
+	for (size_t t = 0; t < 20*BUDGET; ++t) {
 		// Get a new input.
 		float input = 10 * (rand() / (float)RAND_MAX) - 5;
 
@@ -63,10 +63,10 @@ int main() {
 		BKPA_regress(&regressor, PA, i, target);
 
 		// Track loss.
-		float l = fmaxf(0, fabsf(prediction - target) - PA.eps);
-		observe(&loss, l);
+		float error = prediction - target;
+		observe(&loss, error * error);
 	}
 
 	// Display performance.
-	printf("Loss %.2f (%.2f).\n", mean(&loss), sqrtf(variance(&loss)));
+	printf("RMSE: %.3f.\n", sqrtf(mean(&loss)));
 }
