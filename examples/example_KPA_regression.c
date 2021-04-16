@@ -5,12 +5,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define BUDGET 64
-
-// Data for kernel projection.
-static struct { float position; } instances[BUDGET] = {0};
-static float alpha[BUDGET];
-
 /* Define a problem-specific kernel. A kernel defines a dot-product between
 inputs, and should be adapted to the problem.
 
@@ -18,8 +12,10 @@ inputs, and should be adapted to the problem.
 	kernels: support vector machines, regularization, optimization, and beyond.
 	MIT press, 2002. */
 
+#define BUDGET 64
+static struct { float position; } instances[BUDGET] = {0};
 static float kernel(size_t i, size_t j) {
-	float dot = 1;
+	float dot = 1; // Use 1 to implicitly use a bias term.
 	dot += instances[i].position * instances[j].position;
 	return dot * dot;
 }
