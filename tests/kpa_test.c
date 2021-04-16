@@ -70,27 +70,46 @@ TEST test_kernel_projection() {
 
 TEST test_KPA_regression() {
 	const size_t N = 10;
-	float X[N][FEATURE_DIMS] = {};
-	float alpha[N] = {0};
+	const float COST[] = {INFINITY, 100, 1e-4};
+	const float MARGIN[] = {0, 0.1, 1};
 
-	support_vectors = &X;
-	KP_t regressor = {.alpha = alpha,
-	                  .num_alpha = N,
-	                  .kernel = &quadratic_kernel};
-	PA_t hyper_params = {.C = INFINITY, .eps = 0};
+	for (int c = 0; c < sizeof(COST) / sizeof(COST[0]); ++c) {
+		for (int m = 0; m < sizeof(MARGIN) / sizeof(MARGIN[0]); ++m) {
+			// Configure PA update.
+			PA_t PA = {.C = COST[c], .eps = MARGIN[m]};
 
-	for (size_t x_i = 0; x_i < N; ++x_i) {
-		// Add instance.
-		assert(regressor.alpha[x_i] == 0);
-		float input = 10 * (rand() / (float) RAND_MAX) - 5;
-		X[x_i][0] = input;
+			// Initialize support vectors.
+			float X[N][FEATURE_DIMS] = {0};
+			support_vectors = &X;
 
-		// Update model.
-		float target = input * input - 10;
-		float pred_before = KPA_regress(&regressor, hyper_params, x_i, target);
-		float pred_after = KPA_regress(&regressor, hyper_params, x_i, NAN);
+			// Define regressor.
+			float alpha[N] = {0};
+			KP_t regressor = {
+			    .alpha = alpha,
+			    .num_alpha = N,
+			    .kernel = &quadratic_kernel,
+			};
 
-		ASSERT_LTE(hyper_params.eps, fabsf(pred_after - target));
+			for (size_t x_i = 0; x_i < N; ++x_i) {
+				// Add input to kernel.
+				assert(regressor.alpha[x_i] == 0);
+				float input = 10 * (rand() / (float)RAND_MAX) - 5;
+				X[x_i][0] = input;
+
+				// Update model.
+				float target = input * input - 10;
+				float pred_before = KPA_regress(&regressor, PA, x_i, target);
+				float pred_after = KPA_regress(&regressor, PA, x_i, NAN);
+
+				ASSERT_GTEm("Error should not get larger!",
+				            fabsf(pred_before - target),
+				            fabsf(pred_after - target));
+				if (isinf(PA.C)) {
+					ASSERT_GTEm("Loss should be zero after update with C=inf!",
+					            PA.eps + 1e-4, fabsf(pred_after - target));
+				}
+			}
+		}
 	}
 
 	PASS();
