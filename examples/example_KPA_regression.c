@@ -33,9 +33,12 @@ int main() {
 
 	online_stats_t loss = {0};
 
-	for (size_t i = 0; i < BUDGET; ++i) {
-		// Initialize instance with input so that the kernel can access it.
+	for (size_t t = 0; t < BUDGET; ++t) {
+		// Get a new input.
 		float input = 10 * (rand() / (float)RAND_MAX) - 5;
+
+		// Store input in free instance to make it available to the kernel.
+		size_t i = KP_find_idle(&regressor, 0);
 		instances[i].position = input;
 
 		// Predict on new input.
