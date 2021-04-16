@@ -19,6 +19,11 @@ static float linear_kernel(size_t i, size_t j) {
 	return k;
 }
 
+static float quadratic_kernel(size_t i, size_t j) {
+	float k = linear_kernel(i, j);
+	return k * k;
+}
+
 TEST test_kernel_projection() {
 	// Set up kernel.
 	float X[SUPPORT_VECTORS][FEATURE_DIMS] = {
@@ -63,7 +68,33 @@ TEST test_kernel_projection() {
 	PASS();
 }
 
-TEST test_KPA_regression() { SKIP(); }
+TEST test_KPA_regression() {
+	const size_t N = 10;
+	float X[N][FEATURE_DIMS] = {};
+	float alpha[N] = {0};
+
+	support_vectors = &X;
+	KP_t regressor = {.alpha = alpha,
+	                  .num_alpha = N,
+	                  .kernel = &quadratic_kernel};
+	PA_t hyper_params = {.C = INFINITY, .eps = 0};
+
+	for (size_t x_i = 0; x_i < N; ++x_i) {
+		// Add instance.
+		assert(regressor.alpha[x_i] == 0);
+		float input = 10 * (rand() / (float) RAND_MAX) - 5;
+		X[x_i][0] = input;
+
+		// Update model.
+		float target = input * input - 10;
+		float pred_before = KPA_regress(&regressor, hyper_params, x_i, target);
+		float pred_after = KPA_regress(&regressor, hyper_params, x_i, NAN);
+
+		ASSERT_LTE(hyper_params.eps, fabsf(pred_after - target));
+	}
+
+	PASS();
+}
 
 TEST test_idle() {
 	float X[SUPPORT_VECTORS][FEATURE_DIMS];

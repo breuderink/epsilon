@@ -14,6 +14,21 @@ float KP_apply(KP_t *kp, size_t xi) {
 	return y_hat;
 }
 
+float KPA_regress(KP_t *kp, const PA_t pa, size_t x_i, float y) {
+	float y_hat = KP_apply(kp, x_i);
+	assert(isfinite(y_hat));
+
+	if (isfinite(y)) {
+		assert(kp->alpha[x_i] == 0);
+		float error = y_hat - y;
+		float loss = fmaxf(0, fabs(error) - pa.eps);
+		float xx = kp->kernel(x_i, x_i);
+		kp->alpha[x_i] = copysignf(fminf(pa.C, loss / xx), -error);
+	}
+
+	return y_hat;
+}
+
 // Functions to maintain KP budget.
 size_t KP_num_idle(const KP_t *kp) {
 	size_t c = 0;
@@ -89,25 +104,12 @@ float BPA_simple(KP_t *kp, size_t t) {
 }
 
 float BKPA_regress(KP_t *kp, const PA_t pa, size_t x_i, float y) {
-	float y_hat = KP_apply(kp, x_i);
-	assert(isfinite(y_hat));
-
+	float y_hat = KPA_regress(kp, pa, x_i, y);
 	if (isfinite(y)) {
-		// Compute loss if y is provided.
-		assert(kp->alpha[x_i] == 0);
-		float error = y_hat - y;
-		float loss = fmaxf(0, fabs(error) - pa.eps);
-		float xx = kp->kernel(x_i, x_i);
-		kp->alpha[x_i] = copysignf(fminf(pa.C, loss / xx), -error);
-
-		float y_hat2 = KP_apply(kp, x_i);
-		assert(fabsf(y_hat2 - y) <= pa.eps);
-
 		// Maintain budget.
 		if (KP_num_idle(kp) < 1) {
 			BPA_simple(kp, x_i);
 		}
 	}
-
 	return y_hat;
 }
