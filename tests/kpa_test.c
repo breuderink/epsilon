@@ -27,6 +27,10 @@ static float quadratic_kernel(size_t i, size_t j) {
 	return k * k;
 }
 
+TEST test_RBF_kernel() {
+	SKIP();
+}
+
 TEST test_kernel_projection() {
 	// Set up kernel.
 	float X[SUPPORT_VECTORS][FEATURE_DIMS] = {
@@ -141,6 +145,7 @@ TEST test_idle() {
 }
 
 SUITE(KPA_tests) {
+	RUN_TEST(test_RBF_kernel);
 	RUN_TEST(test_kernel_projection);
 	RUN_TEST(test_KPA_regression);
 	RUN_TEST(test_idle);
