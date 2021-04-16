@@ -72,7 +72,6 @@ TEST test_kernel_projection() {
 }
 
 TEST test_KPA_regression() {
-	const size_t N = 10;
 	const float COST[] = {INFINITY, 100, 1e-4};
 	const float MARGIN[] = {0, 0.1, 1};
 
@@ -82,18 +81,18 @@ TEST test_KPA_regression() {
 			PA_t PA = {.C = COST[c], .eps = MARGIN[m]};
 
 			// Initialize support vectors.
-			float X[N][FEATURE_DIMS] = {0};
+			float X[SUPPORT_VECTORS][FEATURE_DIMS] = {0};
 			support_vectors = &X;
 
 			// Define regressor.
-			float alpha[N] = {0};
+			float alpha[SUPPORT_VECTORS] = {0};
 			KP_t regressor = {
 			    .alpha = alpha,
-			    .num_alpha = N,
+			    .num_alpha = SUPPORT_VECTORS,
 			    .kernel = &quadratic_kernel,
 			};
 
-			for (size_t x_i = 0; x_i < N; ++x_i) {
+			for (size_t x_i = 0; x_i < SUPPORT_VECTORS; ++x_i) {
 				// Add input to kernel.
 				assert(regressor.alpha[x_i] == 0);
 				float input = 10 * (rand() / (float)RAND_MAX) - 5;
