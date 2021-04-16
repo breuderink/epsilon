@@ -33,7 +33,7 @@ int main() {
 
 	online_stats_t loss = {0};
 
-	for (size_t t = 0; t < BUDGET; ++t) {
+	for (size_t t = 0; t < 10*BUDGET; ++t) {
 		// Get a new input.
 		float input = 10 * (rand() / (float)RAND_MAX) - 5;
 
@@ -44,9 +44,9 @@ int main() {
 		// Predict on new input.
 		float prediction = KPA_regress(&regressor, PA, i, NAN);
 
-		// Train model. This can be combined with previous step.
+		// Define target and update model.
 		float target = input * input - 10;
-		KPA_regress(&regressor, PA, i, target);
+		BKPA_regress(&regressor, PA, i, target);
 
 		// Track loss.
 		float l = fmaxf(0, fabsf(prediction - target) - PA.eps);
