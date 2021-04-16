@@ -11,7 +11,13 @@
 static struct { float position; } instances[BUDGET] = {0};
 static float alpha[BUDGET];
 
-// TODO: refer to book on kernels. The kernel is specific to the problem.
+/* Define a problem-specific kernel. A kernel defines a dot-product between
+inputs, and should be adapted to the problem.
+
+[1] Schölkopf, Bernhard, Alexander J. Smola, and Francis Bach. Learning with
+	kernels: support vector machines, regularization, optimization, and beyond.
+	MIT press, 2002. */
+
 static float kernel(size_t i, size_t j) {
 	float dot = 1;
 	dot += instances[i].position * instances[j].position;
