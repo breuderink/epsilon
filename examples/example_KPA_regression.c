@@ -18,15 +18,15 @@ MIT press, 2002. */
 
 #define BUDGET 128
 static input_t instances[BUDGET] = {0};
-static float linear_kernel(size_t i, size_t j) {
-	float dot = 1; // Use 1 to implicitly use a bias term.
-	dot += instances[i].position * instances[j].position;
-	return dot;
+static float inner_product(size_t a, size_t b) {
+	float k_ab = 1; // Use 1 to implicitly use a bias term.
+	k_ab += instances[a].position * instances[b].position;
+	return k_ab;
 }
 
-
+// Define a RBF kernel by wrapping the inner product defined above.
 static float kernel(size_t a, size_t b) {
-	return RBF_kernel(1.0, linear_kernel, a, b);
+	return RBF_kernel(1.0, inner_product, a, b);
 }
 
 int main() {
