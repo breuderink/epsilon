@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <math.h>
 #include <stddef.h>
+#include <stdlib.h>
 
 float KP_apply(KP_t *kp, size_t xi) {
 	float y_hat = 0;
@@ -39,14 +40,15 @@ size_t KP_num_idle(const KP_t *kp) {
 }
 
 size_t KP_find_idle(const KP_t *kp, size_t idle_index) {
-	size_t c = idle_index + 1;
+	size_t idle_count = 0;
 	for (size_t i = 0; i < kp->num_alpha; ++i) {
-		c -= kp->alpha[i] == 0;
-		if (c == 0)
-			return i;
+		if (kp->alpha[i] == 0) {
+			if (idle_count++ == idle_index) {
+				return i;
+			}
+		}
 	}
-	assert(0);
-	return 0;
+	abort();
 }
 
 float BPA_simple(KP_t *kp, size_t t) {
