@@ -4,6 +4,12 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+float RBF_kernel(float sigma, kernel_t kernel, size_t a, size_t b) {
+	// (a - b)^T (a - b) = a^T a - 2 a^T b + b^T b.
+	float squared_dist = kernel(a, a) - 2 * kernel(a, b) + kernel(b, b);
+	return expf(-squared_dist / (2 * sigma * sigma));
+}
+
 float KP_apply(KP_t *kp, size_t xi) {
 	float y_hat = 0;
 	for (size_t i = 0; i < kp->num_alpha; ++i) {

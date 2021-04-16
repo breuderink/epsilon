@@ -38,8 +38,11 @@ void SORF(float *x, uint8_t nbits);
 void SORF_repeat(float *x1, size_t n1, float *x2, size_t n2);
 
 
-// Kernel projection used to implement kernel passive-aggressive algorithms.
+// Kernels.
 typedef float (*kernel_t)(size_t i, size_t j);
+float RBF_kernel(float sigma, kernel_t kernel, size_t a, size_t b);
+
+// Kernel projection used to implement kernel passive-aggressive algorithms.
 typedef struct {
 	float *alpha;
 	size_t num_alpha;

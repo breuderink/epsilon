@@ -24,14 +24,9 @@ static float linear_kernel(size_t i, size_t j) {
 	return dot;
 }
 
-static float RBF_kernel(size_t a, size_t b) {
-	float k_aa = linear_kernel(a, a);
-	float k_ab = linear_kernel(a, b);
-	float k_bb = linear_kernel(b, b);
 
-	// (a - b)^T (a - b) = a^T a - 2 a^T b + b^T b.
-	float squared_dist = k_aa - 2 * k_ab + k_bb;
-	return expf(-squared_dist * 0.5);
+static float kernel(size_t a, size_t b) {
+	return RBF_kernel(1.0, linear_kernel, a, b);
 }
 
 int main() {
@@ -42,12 +37,12 @@ int main() {
 	KP_t regressor = {
 	    .alpha = alpha,
 	    .num_alpha = BUDGET,
-	    .kernel = &RBF_kernel,
+	    .kernel = &kernel,
 	};
 
 	online_stats_t loss = {0};
 
-	for (size_t t = 0; t < 20*BUDGET; ++t) {
+	for (size_t t = 0; t < 20 * BUDGET; ++t) {
 		// Get a new input.
 		float input = 10 * (rand() / (float)RAND_MAX) - 5;
 
