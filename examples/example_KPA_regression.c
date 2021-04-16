@@ -24,7 +24,7 @@ static float linear_kernel(size_t i, size_t j) {
 	return dot;
 }
 
-static float Gaussian_kernel(size_t a, size_t b) {
+static float RBF_kernel(size_t a, size_t b) {
 	float k_aa = linear_kernel(a, a);
 	float k_ab = linear_kernel(a, b);
 	float k_bb = linear_kernel(b, b);
@@ -42,7 +42,7 @@ int main() {
 	KP_t regressor = {
 	    .alpha = alpha,
 	    .num_alpha = BUDGET,
-	    .kernel = &Gaussian_kernel,
+	    .kernel = &RBF_kernel,
 	};
 
 	online_stats_t loss = {0};
