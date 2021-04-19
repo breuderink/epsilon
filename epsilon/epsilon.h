@@ -40,7 +40,8 @@ void SORF_repeat(float *x1, size_t n1, float *x2, size_t n2);
 
 // Kernels.
 typedef float (*kernel_t)(size_t i, size_t j);
-float RBF_kernel(float sigma, kernel_t kernel, size_t a, size_t b);
+float squared_Euclidean(kernel_t kernel, size_t a, size_t b);
+float RBF_kernel(float sigma, float squared_dist);
 
 // Kernel projection used to implement kernel passive-aggressive algorithms.
 typedef struct {

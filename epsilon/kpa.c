@@ -4,9 +4,12 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-float RBF_kernel(float sigma, kernel_t kernel, size_t a, size_t b) {
+float squared_Euclidean(kernel_t kernel, size_t a, size_t b) {
 	// (a - b)^T (a - b) = a^T a - 2 a^T b + b^T b.
-	float squared_dist = kernel(a, a) - 2 * kernel(a, b) + kernel(b, b);
+	return kernel(a, a) - 2 * kernel(a, b) + kernel(b, b);
+}
+
+float RBF_kernel(float sigma, float squared_dist) {
 	return expf(-squared_dist / (2 * sigma * sigma));
 }
 
