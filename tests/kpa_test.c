@@ -27,15 +27,39 @@ static float quadratic_kernel(size_t i, size_t j) {
 	return k * k;
 }
 
-TEST test_RBF_kernel() {
-	SKIP();
+TEST test_squared_Euclidean() {
+	// Set up kernel.
+	float X[SUPPORT_VECTORS][FEATURE_DIMS] = {
+	    {1, 0}, {2, 0}, {3, 0}, {5, 0}, {0, 7},
+	};
+	support_vectors = &X;
+
+	/*
+	>>> from sklearn.metrics import pairwise
+	>>> pairwise.euclidean_distances(X)**2
+	array([[ 0.,  1.,  4., 16., 50.],
+	       [ 1.,  0.,  1.,  9., 53.],
+	       [ 4.,  1.,  0.,  4., 58.],
+	       [16.,  9.,  4.,  0., 74.],
+	       [50., 53., 58., 74.,  0.]])
+	*/
+
+	ASSERT_IN_RANGE(0, squared_Euclidean(linear_kernel, 0, 0), 1e-8);
+	ASSERT_IN_RANGE(1, squared_Euclidean(linear_kernel, 1, 0), 1e-8);
+	ASSERT_IN_RANGE(0, squared_Euclidean(linear_kernel, 1, 1), 1e-8);
+	ASSERT_IN_RANGE(4, squared_Euclidean(linear_kernel, 2, 0), 1e-8);
+	ASSERT_IN_RANGE(74, squared_Euclidean(linear_kernel, 4, 3), 1e-8);
+	PASS();
 }
+
+TEST test_RBF_kernel() { SKIP(); }
 
 TEST test_kernel_projection() {
 	// Set up kernel.
 	float X[SUPPORT_VECTORS][FEATURE_DIMS] = {
 	    {1, 0}, {2, 0}, {3, 0}, {5, 0}, {0, 7},
 	};
+	support_vectors = &X;
 
 	/* Test kernel.
 	>>> import numpy as np
@@ -48,7 +72,6 @@ TEST test_kernel_projection() {
 	       [ 6, 11, 16, 26,  1],
 	       [ 1,  1,  1,  1, 50]])
 	*/
-	support_vectors = &X;
 	ASSERT_IN_RANGE(25 + 1, linear_kernel(3, 3), 1e-8);
 	ASSERT_IN_RANGE(1, linear_kernel(4, 0), 1e-8);
 	ASSERT_IN_RANGE(49 + 1, linear_kernel(4, 4), 1e-8);
@@ -145,6 +168,7 @@ TEST test_idle() {
 }
 
 SUITE(KPA_tests) {
+	RUN_TEST(test_squared_Euclidean);
 	RUN_TEST(test_RBF_kernel);
 	RUN_TEST(test_kernel_projection);
 	RUN_TEST(test_KPA_regression);
