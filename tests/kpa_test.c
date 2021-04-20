@@ -54,7 +54,20 @@ TEST test_squared_Euclidean() {
 	PASS();
 }
 
-TEST test_RBF_kernel() { SKIP(); }
+TEST test_RBF_kernel() {
+	const float SIGMA[] = {0.1, 1, 100};
+	for (int s = 0; s < sizeof(SIGMA) / sizeof(SIGMA[0]); ++s) {
+		// Test extrema.
+		float sigma = SIGMA[s];
+		ASSERT_IN_RANGE(1, RBF_kernel(sigma, 0), 1e-8);
+		ASSERT_IN_RANGE(0, RBF_kernel(sigma, INFINITY), 1e-8);
+	}
+
+	// Test that larger sigma have wider influence.
+	ASSERT(RBF_kernel(1, 1) < RBF_kernel(2, 1));
+
+	PASS();
+}
 
 TEST test_kernel_projection() {
 	// Set up kernel.
