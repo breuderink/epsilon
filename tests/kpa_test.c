@@ -35,6 +35,8 @@ TEST test_squared_Euclidean() {
 	support_vectors = &X;
 
 	/*
+	>>> import numpy as np
+	>>> X = np.asarray([[1,0],[2,0],[3,0],[5,0],[0,7]])
 	>>> from sklearn.metrics import pairwise
 	>>> pairwise.euclidean_distances(X)**2
 	array([[ 0.,  1.,  4., 16., 50.],
