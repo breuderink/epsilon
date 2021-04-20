@@ -37,6 +37,10 @@ void SORF(float *x, uint8_t nbits);
 // SORF.
 void SORF_repeat(float *x1, size_t n1, float *x2, size_t n2);
 
+
+// Fowler-Noll-Vo 1a hash.
+uint32_t FNV1a_hash(void *data, size_t n);
+
 /*
 # References
 [1] Felix, X. Yu, et al. "Orthogonal random features." Advances in Neural
