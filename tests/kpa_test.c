@@ -182,10 +182,20 @@ TEST test_idle() {
 	return 0;
 }
 
+TEST test_BPA_simple() {
+	SKIP();
+}
+
+TEST test_BKPA_regression() {
+	SKIP();
+}
+
 SUITE(KPA_tests) {
 	RUN_TEST(test_squared_Euclidean);
 	RUN_TEST(test_RBF_kernel);
 	RUN_TEST(test_kernel_projection);
 	RUN_TEST(test_KPA_regression);
 	RUN_TEST(test_idle);
+	RUN_TEST(test_BPA_simple);
+	RUN_TEST(test_BKPA_regression);
 }
