@@ -49,6 +49,12 @@ $ ctest
 pseudo-random number generator by George Marsaglia that has good statistical
 properties. See the [xorshift example](examples/example_xorshift.c).
 
+## Hashing
+- The [FNV hash](https://tools.ietf.org/html/draft-eastlake-fnv-17) is fast
+hash function that maps variable length input to a fixed output
+([example](examples/example_FNV_hash.c)). It can be used for [feature
+hashing](https://en.wikipedia.org/wiki/Feature_hashing).
+
 ## Online statistics
 - Welfords method for computing mean and variance in one pass. See the
 [example of Welford's method](examples/example_Welfords_method.c).
