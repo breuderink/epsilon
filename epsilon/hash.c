@@ -4,7 +4,7 @@
 #define FNV1A_OFFSET 0x811c9dc5
 #define FNV1A_PRIME 0x01000193
 
-static inline uint32_t FNV1a_update(uint32_t hash, uint8_t data) {
+extern inline uint32_t FNV1a_update(uint32_t hash, uint8_t data) {
 	hash ^= data;
 	hash *= FNV1A_PRIME;
 	return hash;
