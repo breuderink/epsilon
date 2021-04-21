@@ -38,7 +38,7 @@ void SORF(float *x, uint8_t nbits);
 void SORF_repeat(float *x1, size_t n1, float *x2, size_t n2);
 
 
-// Fowler-Noll-Vo 1a hash.
+// Fowler-Noll-Vo 1a hash [4].
 uint32_t FNV1a_update(uint32_t hash, uint8_t data);
 uint32_t FNV1a_hash(const void *data, size_t n);
 
@@ -53,4 +53,8 @@ uint32_t FNV1a_hash(const void *data, size_t n);
 
 [3] Welford, B. P. "Note on a method for calculating corrected sums of
     squares and products." Technometrics 4.3 (1962): 419-420.
+
+[4] Eastlake, Donald, et al. “The FNV Non-Cryptographic Hash Algorithm.”
+    Tools.ietf.org, tools.ietf.org/html/draft-eastlake-fnv-17. Accessed 21 Apr.
+    2021. ‌
 */
