@@ -54,7 +54,6 @@ uint32_t FNV1a_hash(const void *data, size_t n);
 [3] Welford, B. P. "Note on a method for calculating corrected sums of
     squares and products." Technometrics 4.3 (1962): 419-420.
 
-[4] Eastlake, Donald, et al. “The FNV Non-Cryptographic Hash Algorithm.”
-    Tools.ietf.org, tools.ietf.org/html/draft-eastlake-fnv-17. Accessed 21 Apr.
-    2021. ‌
+[4] Fowler, Glenn, et al. “The FNV Non-Cryptographic Hash Algorithm.” IETF
+    Tools, Network Working Group, tools.ietf.org/html/draft-eastlake-fnv-03.
 */
