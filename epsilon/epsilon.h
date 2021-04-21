@@ -37,6 +37,11 @@ void SORF(float *x, uint8_t nbits);
 // SORF.
 void SORF_repeat(float *x1, size_t n1, float *x2, size_t n2);
 
+
+// Fowler-Noll-Vo 1a hash [4].
+uint32_t FNV1a_update(uint32_t hash, uint8_t data);
+uint32_t FNV1a_hash(const void *data, size_t n);
+
 /*
 # References
 [1] Felix, X. Yu, et al. "Orthogonal random features." Advances in Neural
@@ -48,4 +53,7 @@ void SORF_repeat(float *x1, size_t n1, float *x2, size_t n2);
 
 [3] Welford, B. P. "Note on a method for calculating corrected sums of
     squares and products." Technometrics 4.3 (1962): 419-420.
+
+[4] Fowler, Glenn, et al. “The FNV Non-Cryptographic Hash Algorithm.” IETF
+    Tools, Network Working Group, tools.ietf.org/html/draft-eastlake-fnv-03.
 */
