@@ -10,7 +10,7 @@ static inline uint32_t FNV1a_update(uint32_t hash, uint8_t data) {
 	return hash;
 }
 
-uint32_t FNV1a_hash(void *data, size_t n) {
+uint32_t FNV1a_hash(const void *data, size_t n) {
     uint8_t *p = (uint8_t *) data;
 	uint32_t h = FNV1A_OFFSET;
 	while (n--) {

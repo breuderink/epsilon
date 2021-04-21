@@ -39,7 +39,8 @@ void SORF_repeat(float *x1, size_t n1, float *x2, size_t n2);
 
 
 // Fowler-Noll-Vo 1a hash.
-uint32_t FNV1a_hash(void *data, size_t n);
+uint32_t FNV1a_update(uint32_t hash, uint8_t data);
+uint32_t FNV1a_hash(const void *data, size_t n);
 
 /*
 # References
