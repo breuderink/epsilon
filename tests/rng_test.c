@@ -20,6 +20,7 @@ TEST xorshift32_cycle_length() {
 	PASS();
 }
 
+#ifdef XORSHIFT32_EXHAUSTIVE
 TEST xorshift32_cycle_exhaustive() {
 	uint32_t tortoise = 1;
 	uint32_t hare = tortoise;
@@ -34,6 +35,7 @@ TEST xorshift32_cycle_exhaustive() {
 	ASSERT_EQm("xorshift32 should cycle in UINT32_MAX - 1 iterations", 1, hare);
 	PASS();
 }
+#endif
 
 SUITE(RNG) {
 	RUN_TEST(xorshift32_cycle_length);

@@ -41,6 +41,7 @@ TEST test_FWHT() {
 	PASS();
 }
 
+#ifdef SORF_ENABLED
 TEST test_SORF() {
 	float x0[DIMS];
 	float x[DIMS];
@@ -126,6 +127,7 @@ TEST test_repeat() {
 
 	PASS();
 }
+#endif
 
 SUITE(SORF_tests) {
 	RUN_TEST(test_FWHT);
