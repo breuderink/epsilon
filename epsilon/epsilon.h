@@ -1,14 +1,14 @@
 #include <stddef.h>
 #include <stdint.h>
 
-// Marsaglia's xorshift random number generator [5];
+// Marsaglia's xorshift random number generator [1];
 uint32_t xorshift32(uint32_t y);
 
-// Fowler-Noll-Vo 1a hash [4].
+// Fowler-Noll-Vo 1a hash [2].
 uint32_t FNV1a32_update(uint32_t hash, uint8_t data);
 uint32_t FNV1a32_hash(const void *data, size_t n);
 
-// Structure for computing the variance in one pass using Welfords' method [3].
+// Structure for computing the variance in one pass using Welford's method [3].
 typedef struct {
 	float mean, squared_diff;
 } Welfords_method_t;
@@ -34,7 +34,7 @@ float variance(const online_stats_t *s);
 void FWHT(float *x, uint8_t nbits);
 
 // SORF is a pseudorandom matrix transformation based on fast Walsh-Hadamard
-// transform and sign flipping. Based on [1, 2]. Note that SORF is patented:
+// transform and sign flipping. Based on [4, 5]. Note that SORF is patented:
 // US2018/014145A1!
 void SORF(float *x, uint8_t nbits);
 
@@ -45,19 +45,19 @@ void SORF_repeat(float *x1, size_t n1, float *x2, size_t n2);
 
 /*
 # References
-[1] Felix, X. Yu, et al. "Orthogonal random features." Advances in Neural
-    Information Processing Systems. 2016.
+[1] Marsaglia, George. "Xorshift RNGs." Journal of Statistical Software 8.14
+    (2003): 1-6.
 
-[2] Choromanski, Krzysztof, and Vikas Sindhwani. "Recycling randomness
-    with structure for sublinear time kernel expansions." International
-    Conference on Machine Learning. 2016.
+[2] Fowler, Glenn, et al. “The FNV Non-Cryptographic Hash Algorithm.” IETF
+    Tools, Network Working Group, tools.ietf.org/html/draft-eastlake-fnv-03.
 
 [3] Welford, B. P. "Note on a method for calculating corrected sums of
     squares and products." Technometrics 4.3 (1962): 419-420.
 
-[4] Fowler, Glenn, et al. “The FNV Non-Cryptographic Hash Algorithm.” IETF
-    Tools, Network Working Group, tools.ietf.org/html/draft-eastlake-fnv-03.
+[4] Felix, X. Yu, et al. "Orthogonal random features." Advances in Neural
+    Information Processing Systems. 2016.
 
-[5] Marsaglia, George. "Xorshift RNGs." Journal of Statistical Software 8.14
-    (2003): 1-6.
+[5] Choromanski, Krzysztof, and Vikas Sindhwani. "Recycling randomness
+    with structure for sublinear time kernel expansions." International
+    Conference on Machine Learning. 2016.
 */
