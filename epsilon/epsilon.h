@@ -1,7 +1,12 @@
 #include <stddef.h>
 #include <stdint.h>
 
+// Marsaglia's xorshift random number generator [5];
 uint32_t xorshift32(uint32_t y);
+
+// Fowler-Noll-Vo 1a hash [4].
+uint32_t FNV1a32_update(uint32_t hash, uint8_t data);
+uint32_t FNV1a32_hash(const void *data, size_t n);
 
 // Structure for computing the variance in one pass using Welfords' method [3].
 typedef struct {
@@ -37,9 +42,6 @@ void SORF(float *x, uint8_t nbits);
 // SORF.
 void SORF_repeat(float *x1, size_t n1, float *x2, size_t n2);
 
-// Fowler-Noll-Vo 1a hash [4].
-uint32_t FNV1a_update(uint32_t hash, uint8_t data);
-uint32_t FNV1a_hash(const void *data, size_t n);
 
 /*
 # References
@@ -55,4 +57,7 @@ uint32_t FNV1a_hash(const void *data, size_t n);
 
 [4] Fowler, Glenn, et al. “The FNV Non-Cryptographic Hash Algorithm.” IETF
     Tools, Network Working Group, tools.ietf.org/html/draft-eastlake-fnv-03.
+
+[5] Marsaglia, George. "Xorshift RNGs." Journal of Statistical Software 8.14
+    (2003): 1-6.
 */
