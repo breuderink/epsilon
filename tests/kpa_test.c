@@ -56,7 +56,7 @@ TEST test_squared_Euclidean() {
 
 TEST test_RBF_kernel() {
 	const float SIGMA[] = {0.1, 1, 100};
-	for (int s = 0; s < sizeof(SIGMA) / sizeof(SIGMA[0]); ++s) {
+	for (size_t s = 0; s < sizeof(SIGMA) / sizeof(SIGMA[0]); ++s) {
 		// Test extrema.
 		float sigma = SIGMA[s];
 		ASSERT_IN_RANGE(1, RBF_kernel(sigma, 0), 1e-8);
@@ -117,8 +117,8 @@ TEST test_KPA_regression() {
 	const float COST[] = {INFINITY, 100, 1e-4};
 	const float MARGIN[] = {0, 0.1, 1};
 
-	for (int c = 0; c < sizeof(COST) / sizeof(COST[0]); ++c) {
-		for (int m = 0; m < sizeof(MARGIN) / sizeof(MARGIN[0]); ++m) {
+	for (size_t c = 0; c < sizeof(COST) / sizeof(COST[0]); ++c) {
+		for (size_t m = 0; m < sizeof(MARGIN) / sizeof(MARGIN[0]); ++m) {
 			// Configure PA update.
 			PA_t PA = {.C = COST[c], .eps = MARGIN[m]};
 
