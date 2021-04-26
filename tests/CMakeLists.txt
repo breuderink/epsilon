@@ -13,6 +13,13 @@ add_executable(epsilon_test
 target_include_directories(epsilon_test PRIVATE ${greatest_SOURCE_DIR})
 target_link_libraries(epsilon_test epsilon m)
 
+# See https://stackoverflow.com/a/50882216/220978.
+if(MSVC)
+    target_compile_options(epsilon_test PRIVATE /W4 /WX)
+else()
+    target_compile_options(epsilon_test PRIVATE -Wall -Wextra -pedantic -Werror)
+endif()
+
 # Handle options.
 option(EPSILON_RNG_TEST_EXHAUSTIVE "enable exhaustive test for xorshift32" OFF)
 if(EPSILON_RNG_TEST_EXHAUSTIVE)
@@ -22,4 +29,5 @@ if(EPSILON_SORF_ENABLED)
     target_compile_definitions(epsilon_test PRIVATE SORF_ENABLED)
 endif()
 
+# Add test.
 add_test(NAME epsilon_test COMMAND epsilon_test)

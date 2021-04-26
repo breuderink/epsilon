@@ -16,7 +16,7 @@ int main() {
 		const char *str = data[s];
 
 		// Compute hash.
-		uint32_t hash = FNV1a_hash(str, strlen(str));
+		uint32_t hash = FNV1a32_hash(str, strlen(str));
 
 		// Display results.
 		printf("Hashed '%s' to %#010x.\n", str, hash);
