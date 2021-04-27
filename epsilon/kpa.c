@@ -60,6 +60,19 @@ size_t KP_find_idle(const KP_t *kp, size_t idle_index) {
 	abort();
 }
 
+/* 
+BPA simple update presented in [1].  It maintains the kernel budget by
+absorbing a support vector into the target support vector with minimal
+distortion.  The BPA simple update in equation (12) of [1] can be split in a
+regular learning update, and a budget maintenance update.  Here we only
+implement the part that mainains the budget, so that it can be combined with
+different kernel methods.
+
+[1] Wang, Zhuang, and Slobodan Vucetic.  "Online passive-aggressive
+	algorithms on a budget." Proceedings of the Thirteenth International
+	Conference on Artificial Intelligence and Statistics.  JMLR Workshop and
+	Conference Proceedings, 2010.
+*/
 float BPA_simple(KP_t *kp, size_t t) {
 	struct {
 		size_t r;
@@ -88,6 +101,7 @@ float BPA_simple(KP_t *kp, size_t t) {
 		// Minimize l(b) = minimize 2abd + bbe.
 		// dl(b)/db = 2ad + 2be = 0.
 		// -> b = -ad/e ->  p = a_r k(r,t)/k(t,t)
+		// This corresponds to first part of equation (12) in [1].
 
 		float k_rr = kp->kernel(curr.r, t);
 		float k_rt = kp->kernel(curr.r, t);
