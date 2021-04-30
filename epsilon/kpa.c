@@ -76,44 +76,45 @@ different kernel methods.
     Conference on Artificial Intelligence and Statistics.  JMLR Workshop and
     Conference Proceedings, 2010.
 */
+
+typedef struct {
+	size_t r;
+	float k_rr, k_rt, k_tt, a_r, proj, loss;
+} BPA_S_t;
+
+void BPA_S_update(BPA_S_t *c) {
+	/*
+	[w - w']^T K [w - w']
+	l(b) = [a b] [c d; d e] [a b] = aac + 2abd + bbe,
+	with a = -a_r, b = a_t - a_t + p, c = k(r,r), d = k(r,t),
+	and e = k(t,t).
+	Minimize l(b) = minimize 2abd + bbe.
+	dl(b)/db = 2ad + 2be = 0.
+	-> b = -ad/e ->  p = a_r k(r,t)/k(t,t)
+	This corresponds to first part of equation (12) in [1].
+	*/
+	c->proj = c->a_r * c->k_rt / c->k_tt;
+
+	c->loss = c->a_r * c->a_r * c->k_rr;       // l(b) = aac
+	c->loss += 2 * c->a_r * c->proj * c->k_rt; // + 2abd
+	c->loss += c->proj * c->proj * c->k_tt;    // + bbe.
+}
+
 float BPA_simple(KP_t *kp, size_t t) {
-	struct {
-		size_t r;
-		float proj;
-		float loss;
-	} curr, best = {.r = t, .proj = NAN, .loss = INFINITY};
+	BPA_S_t best = {.r = t, .proj = NAN, .loss = INFINITY};
 
-	const float k_tt = kp->kernel(t, t);
-
+	float k_tt = kp->kernel(t, t);
 	// Search for instance r to absorb.
-	for (curr.r = 0; curr.r < kp->num_alpha; ++curr.r) {
-		if (curr.r == t) {
-			continue;
-		}
-		float a_r = kp->alpha[curr.r];
-		if (a_r == 0) {
-			// Freeing an empty space is trivial, but prevents serial
-			// application of BPA_simple.
+	for (size_t r = 0; r < kp->num_alpha; ++r) {
+		if (r == t || kp->alpha[r] == 0) {
 			continue;
 		}
 
-		// [w - w']^T K [w - w']
-		// l(b) = [a b] [c d; d e] [a b] = aac + 2abd + bbe,
-		// with a = -a_r, b = a_t - a_t + p, c = k(r,r), d = k(r,t),
-		// and e = k(t,t).
-		// Minimize l(b) = minimize 2abd + bbe.
-		// dl(b)/db = 2ad + 2be = 0.
-		// -> b = -ad/e ->  p = a_r k(r,t)/k(t,t)
-		// This corresponds to first part of equation (12) in [1].
-
-		float k_rr = kp->kernel(curr.r, t);
-		float k_rt = kp->kernel(curr.r, t);
-		curr.proj = a_r * k_rt / k_tt;
-
-		curr.loss = a_r * a_r * k_rr;              // l(b) = aac
-		curr.loss += 2 * a_r * curr.proj * k_rt;   // + 2abd
-		curr.loss += curr.proj * curr.proj * k_tt; // + bbe.
-
+		BPA_S_t curr = {.r = r,
+		                .k_rr = kp->kernel(curr.r, curr.r),
+		                .k_rt = kp->kernel(curr.r, t),
+		                .k_tt = k_tt};
+		BPA_S_update(&curr);
 		if (curr.loss < best.loss) {
 			best = curr;
 		}
