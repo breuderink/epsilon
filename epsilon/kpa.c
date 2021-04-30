@@ -78,25 +78,25 @@ different kernel methods.
 */
 
 typedef struct {
-	float rr, rt, tt;
+	float ii, ij, jj;
 } kernel_pair_t;
 
-void BPA_S_update(const kernel_pair_t k, float a_r, float *proj, float *loss) {
+void BPA_S_update(const kernel_pair_t k, float a_i, float *proj, float *loss) {
 	/*
 	[w - w']^T K [w - w']
 	l(b) = [a b] [c d; d e] [a b] = aac + 2abd + bbe,
-	with a = -a_r, b = a_t - a_t + p, c = k(r,r), d = k(r,t),
+	with a = -a_i, b = a_t - a_t + p, c = k(r,r), d = k(r,t),
 	and e = k(t,t).
 	Minimize l(b) = minimize 2abd + bbe.
 	dl(b)/db = 2ad + 2be = 0.
-	-> b = -ad/e ->  p = a_r k(r,t)/k(t,t)
+	-> b = -ad/e ->  p = a_i k(r,t)/k(t,t)
 	This corresponds to first part of equation (12) in [1].
 	*/
-	float p = *proj = a_r * k.rt / k.tt;
+	float p = *proj = a_i * k.ij / k.jj;
 
-	*loss = a_r * a_r * k.rr;    // l(b) = aac
-	*loss += 2 * a_r * p * k.rt; // + 2abd
-	*loss += p * p * k.tt;       // + bbe.
+	*loss = a_i * a_i * k.ii;    // l(b) = aac
+	*loss += 2 * a_i * p * k.ij; // + 2abd
+	*loss += p * p * k.jj;       // + bbe.
 }
 
 float BPA_simple(KP_t *kp, size_t t) {
@@ -112,9 +112,9 @@ float BPA_simple(KP_t *kp, size_t t) {
 			continue;
 		}
 		kernel_pair_t k = {
-		    .rr = kp->kernel(curr.r, curr.r),
-		    .rt = kp->kernel(curr.r, t),
-		    .tt = k_tt,
+		    .ii = kp->kernel(curr.r, curr.r),
+		    .ij = kp->kernel(curr.r, t),
+		    .jj = k_tt,
 		};
 		BPA_S_update(k, kp->alpha[curr.r], &curr.proj, &curr.loss);
 		if (curr.loss < best.loss) {
