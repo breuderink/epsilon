@@ -181,14 +181,39 @@ TEST test_idle() {
 	// TODO: should we test out-of-range calls?
 	return 0;
 }
+TEST test_BPA_simple_update() { SKIP(); }
 
+float BPA_simple(KP_t *kp, size_t t);
 TEST test_BPA_simple() {
-	SKIP();
+	// Set up kernel and projection.
+	const float X[SUPPORT_VECTORS][FEATURE_DIMS] = {
+	    {1, 0}, {1, 1}, {1, 2}, {1, 3}, {1, 4}};
+	support_vectors = &X;
+	KP_t km = {
+	    .alpha = (float[SUPPORT_VECTORS]){1, -2, 3, -5, 7},
+	    .num_alpha = SUPPORT_VECTORS,
+	    .kernel = &linear_kernel,
+	};
+
+	size_t target = 0;
+	float prev_loss = 0;
+	for (size_t i = 0; i < SUPPORT_VECTORS - 1; ++i) {
+		size_t idle_before = KP_num_idle(&km);
+		float loss = BPA_simple(&km, target);
+		size_t idle_after = KP_num_idle(&km);
+
+		ASSERT(km.alpha[target] != 0);
+		ASSERT_EQ_FMTm("BPA simple should remove a single instance!",
+		               idle_before + 1, idle_after, "%zu");
+		ASSERTm("BPA-simple loss should > 0!", loss > 0);
+		ASSERTm("BPA-simple should remove instance with lowest loss first!",
+		        prev_loss <= loss);
+		prev_loss = loss;
+	}
+	PASS();
 }
 
-TEST test_BKPA_regression() {
-	SKIP();
-}
+TEST test_BKPA_regression() { SKIP(); }
 
 SUITE(KPA_tests) {
 	RUN_TEST(test_squared_Euclidean);
@@ -196,6 +221,7 @@ SUITE(KPA_tests) {
 	RUN_TEST(test_kernel_projection);
 	RUN_TEST(test_KPA_regression);
 	RUN_TEST(test_idle);
+	RUN_TEST(test_BPA_simple_update);
 	RUN_TEST(test_BPA_simple);
 	RUN_TEST(test_BKPA_regression);
 }
