@@ -24,16 +24,19 @@ float KP_apply(KP_t *kp, size_t xi) {
 	return y_hat;
 }
 
+float PA_regress_base(const PA_t pa, float xx, float y_hat, float y) {
+	float error = y_hat - y;
+	float loss = fmaxf(0, fabs(error) - pa.eps);
+	return copysignf(fminf(pa.C, loss / xx), -error);
+}
+
 float KPA_regress(KP_t *kp, const PA_t pa, size_t x_i, float y) {
 	float y_hat = KP_apply(kp, x_i);
 	assert(isfinite(y_hat));
 
 	if (isfinite(y)) {
 		assert(kp->alpha[x_i] == 0);
-		float error = y_hat - y;
-		float loss = fmaxf(0, fabs(error) - pa.eps);
-		float xx = kp->kernel(x_i, x_i);
-		kp->alpha[x_i] = copysignf(fminf(pa.C, loss / xx), -error);
+		kp->alpha[x_i] = PA_regress_base(pa, kp->kernel(x_i, x_i), y_hat, y);
 	}
 
 	return y_hat;
@@ -60,18 +63,18 @@ size_t KP_find_idle(const KP_t *kp, size_t idle_index) {
 	abort();
 }
 
-/* 
+/*
 BPA simple update presented in [1].  It maintains the kernel budget by
 absorbing a support vector into the target support vector with minimal
 distortion.  The BPA simple update in equation (12) of [1] can be split in a
 regular learning update, and a budget maintenance update.  Here we only
-implement the part that mainains the budget, so that it can be combined with
+implement the part that maintains the budget, so that it can be combined with
 different kernel methods.
 
 [1] Wang, Zhuang, and Slobodan Vucetic.  "Online passive-aggressive
-	algorithms on a budget." Proceedings of the Thirteenth International
-	Conference on Artificial Intelligence and Statistics.  JMLR Workshop and
-	Conference Proceedings, 2010.
+    algorithms on a budget." Proceedings of the Thirteenth International
+    Conference on Artificial Intelligence and Statistics.  JMLR Workshop and
+    Conference Proceedings, 2010.
 */
 float BPA_simple(KP_t *kp, size_t t) {
 	struct {
