@@ -15,7 +15,7 @@ size_t KP_num_idle(const KP_t *km);
 static const void *support_vectors;
 static float linear_kernel(size_t i, size_t j) {
 	float k = 1; // 1 for bias term.
-	const float(*X)[FEATURE_DIMS] = support_vectors;
+	const float(*const X)[FEATURE_DIMS] = support_vectors;
 	for (int f = 0; f < FEATURE_DIMS; ++f) {
 		k += X[i][f] * X[j][f];
 	}
