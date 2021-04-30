@@ -99,21 +99,21 @@ void BPA_S_update(const kernel_pair_t k, float a_i, float *proj, float *loss) {
 	*loss += p * p * k.jj;       // + bbe.
 }
 
-float BPA_simple(KP_t *kp, size_t t) {
+float BPA_simple(KP_t *kp, size_t target) {
 	struct {
 		size_t r;
 		float proj, loss;
-	} curr = {0}, best = {.r = t, .proj = NAN, .loss = INFINITY};
+	} curr = {0}, best = {.r = target, .proj = NAN, .loss = INFINITY};
 
-	float k_tt = kp->kernel(t, t);
+	float k_tt = kp->kernel(target, target);
 	// Search for instance r to absorb.
 	for (curr.r = 0; curr.r < kp->num_alpha; ++curr.r) {
-		if (curr.r == t || kp->alpha[curr.r] == 0) {
+		if (curr.r == target || kp->alpha[curr.r] == 0) {
 			continue;
 		}
 		kernel_pair_t k = {
 		    .ii = kp->kernel(curr.r, curr.r),
-		    .ij = kp->kernel(curr.r, t),
+		    .ij = kp->kernel(curr.r, target),
 		    .jj = k_tt,
 		};
 		BPA_S_update(k, kp->alpha[curr.r], &curr.proj, &curr.loss);
@@ -123,8 +123,8 @@ float BPA_simple(KP_t *kp, size_t t) {
 	}
 
 	// Perform projection of r on target t, and neutralize r.
-	assert(best.r != t);
-	kp->alpha[t] += best.proj;
+	assert(best.r != target);
+	kp->alpha[target] += best.proj;
 	kp->alpha[best.r] = 0;
 
 	return best.loss;
