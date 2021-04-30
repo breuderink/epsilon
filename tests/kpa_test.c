@@ -12,10 +12,10 @@ size_t KP_num_idle(const KP_t *km);
 #define SUPPORT_VECTORS 5
 
 // Use global pointer to point kernel to a set of instances.
-static const void *support_vectors;
+static void *support_vectors;
 static float linear_kernel(size_t i, size_t j) {
 	float k = 1; // 1 for bias term.
-	const float(*const X)[FEATURE_DIMS] = support_vectors;
+	const float(*X)[FEATURE_DIMS] = support_vectors;
 	for (int f = 0; f < FEATURE_DIMS; ++f) {
 		k += X[i][f] * X[j][f];
 	}
@@ -71,7 +71,7 @@ TEST test_RBF_kernel() {
 
 TEST test_kernel_projection() {
 	// Set up kernel.
-	const float X[SUPPORT_VECTORS][FEATURE_DIMS] = {
+	float X[SUPPORT_VECTORS][FEATURE_DIMS] = {
 	    {1, 0}, {2, 0}, {3, 0}, {5, 0}, {0, 7},
 	};
 	support_vectors = &X;
@@ -160,7 +160,7 @@ TEST test_KPA_regression() {
 }
 
 TEST test_idle() {
-	const float X[SUPPORT_VECTORS][FEATURE_DIMS];
+	float X[SUPPORT_VECTORS][FEATURE_DIMS];
 	float alpha[SUPPORT_VECTORS] = {0, 2, 3, 5, 0};
 
 	support_vectors = &X;
@@ -186,7 +186,7 @@ TEST test_BPA_simple_update() { SKIP(); }
 float BPA_simple(KP_t *kp, size_t t);
 TEST test_BPA_simple() {
 	// Set up kernel and projection.
-	const float X[SUPPORT_VECTORS][FEATURE_DIMS] = {
+	float X[SUPPORT_VECTORS][FEATURE_DIMS] = {
 	    {1, 0}, {1, 1}, {1, 2}, {1, 3}, {1, 4}};
 	support_vectors = &X;
 	KP_t km = {
