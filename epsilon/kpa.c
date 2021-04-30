@@ -78,11 +78,10 @@ different kernel methods.
 */
 
 typedef struct {
-	size_t r;
-	float k_rr, k_rt, k_tt, a_r, proj, loss;
-} BPA_S_t;
+	float rr, rt, tt;
+} kernel_pair_t;
 
-void BPA_S_update(BPA_S_t *c) {
+void BPA_S_update(const kernel_pair_t k, float a_r, float *proj, float *loss) {
 	/*
 	[w - w']^T K [w - w']
 	l(b) = [a b] [c d; d e] [a b] = aac + 2abd + bbe,
@@ -93,39 +92,38 @@ void BPA_S_update(BPA_S_t *c) {
 	-> b = -ad/e ->  p = a_r k(r,t)/k(t,t)
 	This corresponds to first part of equation (12) in [1].
 	*/
-	c->proj = c->a_r * c->k_rt / c->k_tt;
+	float p = *proj = a_r * k.rt / k.tt;
 
-	c->loss = c->a_r * c->a_r * c->k_rr;       // l(b) = aac
-	c->loss += 2 * c->a_r * c->proj * c->k_rt; // + 2abd
-	c->loss += c->proj * c->proj * c->k_tt;    // + bbe.
+	*loss = a_r * a_r * k.rr;    // l(b) = aac
+	*loss += 2 * a_r * p * k.rt; // + 2abd
+	*loss += p * p * k.tt;       // + bbe.
 }
 
 float BPA_simple(KP_t *kp, size_t t) {
-	BPA_S_t best = {.r = t, .proj = NAN, .loss = INFINITY};
+	struct {
+		size_t r;
+		float proj, loss;
+	} curr = {0}, best = {.r = t, .proj = NAN, .loss = INFINITY};
 
 	float k_tt = kp->kernel(t, t);
 	// Search for instance r to absorb.
-	for (size_t r = 0; r < kp->num_alpha; ++r) {
-		if (r == t || kp->alpha[r] == 0) {
+	for (curr.r = 0; curr.r < kp->num_alpha; ++curr.r) {
+		if (curr.r == t || kp->alpha[curr.r] == 0) {
 			continue;
 		}
-
-		BPA_S_t curr = {.r = r,
-		                .k_rr = kp->kernel(curr.r, curr.r),
-		                .k_rt = kp->kernel(curr.r, t),
-		                .k_tt = k_tt};
-		BPA_S_update(&curr);
+		kernel_pair_t k = {
+		    .rr = kp->kernel(curr.r, curr.r),
+		    .rt = kp->kernel(curr.r, t),
+		    .tt = k_tt,
+		};
+		BPA_S_update(k, kp->alpha[curr.r], &curr.proj, &curr.loss);
 		if (curr.loss < best.loss) {
 			best = curr;
 		}
 	}
 
-	if (!isfinite(best.proj)) {
-		// Could not find a value for r to absorb.
-		return 0;
-	}
-
 	// Perform projection of r on target t, and neutralize r.
+	assert(best.r != t);
 	kp->alpha[t] += best.proj;
 	kp->alpha[best.r] = 0;
 
