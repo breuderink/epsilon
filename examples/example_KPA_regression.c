@@ -17,10 +17,10 @@ kernels: support vector machines, regularization, optimization, and beyond.
 MIT press, 2002. */
 
 #define BUDGET 128
-static input_t instances[BUDGET] = {0};
+static input_t support_vectors[BUDGET] = {0};
 static float inner_product(size_t a, size_t b) {
 	float k_ab = 1; // Use 1 to implicitly use a bias term.
-	k_ab += instances[a].position * instances[b].position;
+	k_ab += support_vectors[a].position * support_vectors[b].position;
 	return k_ab;
 }
 
@@ -33,7 +33,7 @@ static float kernel(size_t a, size_t b) {
 int main() {
 	PA_t PA = {.C = 100, .eps = 0.1};
 
-	// Define regressor.
+	// Initialize a kernel regression model.
 	float alpha[BUDGET] = {0};
 	KP_t regressor = {
 	    .alpha = alpha,
@@ -41,15 +41,17 @@ int main() {
 	    .kernel = &kernel,
 	};
 
+	// Initialize loss statistics to track performance.
 	online_stats_t loss = {0};
 
 	for (size_t t = 0; t < 20 * BUDGET; ++t) {
 		// Get a new input.
 		float input = 10 * (rand() / (float)RAND_MAX) - 5;
 
-		// Store input in free instance to make it available to the kernel.
+		// Store input in free support vector to make it available to the
+		// kernel.
 		size_t i = KP_find_idle(&regressor, 0);
-		instances[i].position = input;
+		support_vectors[i].position = input;
 
 		// Predict on new input.
 		float prediction = KPA_regress(&regressor, PA, i, NAN);

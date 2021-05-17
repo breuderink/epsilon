@@ -11,7 +11,7 @@ size_t KP_num_idle(const KP_t *km);
 #define FEATURE_DIMS 2
 #define SUPPORT_VECTORS 5
 
-// Use global pointer to point kernel to a set of instances.
+// Use global pointer to point kernel to a set of support vectors.
 static void *support_vectors;
 static float linear_kernel(size_t i, size_t j) {
 	float k = 1; // 1 for bias term.
@@ -203,10 +203,10 @@ TEST test_BPA_simple() {
 		size_t idle_after = KP_num_idle(&km);
 
 		ASSERT(km.alpha[target] != 0);
-		ASSERT_EQ_FMTm("BPA simple should remove a single instance!",
+		ASSERT_EQ_FMTm("BPA simple should absorb a single support vector!",
 		               idle_before + 1, idle_after, "%zu");
 		ASSERTm("BPA-simple loss should > 0!", loss > 0);
-		ASSERTm("BPA-simple should remove instance with lowest loss first!",
+		ASSERTm("BPA-simple should absorb support vector with lowest loss!",
 		        prev_loss <= loss);
 		prev_loss = loss;
 	}

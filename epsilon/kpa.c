@@ -106,7 +106,7 @@ float BPA_simple(KP_t *kp, size_t target) {
 	} curr = {0}, best = {.r = target, .proj = NAN, .loss = INFINITY};
 
 	float k_tt = kp->kernel(target, target);
-	// Search for instance r to absorb.
+	// Search for support vector r to absorb.
 	for (curr.r = 0; curr.r < kp->num_alpha; ++curr.r) {
 		if (curr.r == target || kp->alpha[curr.r] == 0) {
 			continue;

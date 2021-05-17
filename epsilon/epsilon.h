@@ -58,7 +58,7 @@ typedef struct {
 // Apply kernel projection to input x1.
 float KP_apply(KP_t *km, size_t x1);
 
-// Get n-th idle (i.e. alpha=0) instance of kernel projection.
+// Get n-th idle (i.e. alpha=0) support vector of kernel projection.
 size_t KP_find_idle(const KP_t *km, size_t n);
 
 // Passive-aggressive parameters.
