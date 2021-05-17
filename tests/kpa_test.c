@@ -212,7 +212,36 @@ TEST test_BPA_simple() {
 	PASS();
 }
 
-TEST test_BKPA_regression() { SKIP(); }
+static float identity_kernel(size_t i, size_t j) { return i == j; }
+TEST test_BKPA_regression() {
+	PA_t PA = {.C = INFINITY, .eps = 0};
+
+	// Define regressor.
+	float alpha[SUPPORT_VECTORS] = {0};
+	KP_t regressor = {
+	    .alpha = alpha,
+	    .num_alpha = SUPPORT_VECTORS,
+	    .kernel = &identity_kernel, // Use a fixed kernel for testing.
+	};
+
+	for (size_t pass = 0; pass < 3; ++pass) {
+		for (size_t t = 0; t < SUPPORT_VECTORS; ++t) {
+			size_t x_i = KP_find_idle(&regressor, 0);
+			float target = pass + 1;
+			BKPA_regress(&regressor, PA, x_i, target);
+
+			float pred_after = BKPA_regress(&regressor, PA, x_i, NAN);
+			GREATEST_ASSERT_IN_RANGEm(
+			    "BKPA loss should be zero on last example!", 0,
+			    pred_after - target, 1e-8);
+
+			size_t idle = KP_num_idle(&regressor);
+			GREATEST_ASSERTm("BKPA should maintain budget!", idle >= 1);
+		}
+	}
+
+	PASS();
+}
 
 SUITE(KPA_tests) {
 	RUN_TEST(test_squared_Euclidean);
