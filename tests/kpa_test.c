@@ -63,7 +63,7 @@ TEST test_RBF_kernel() {
 		ASSERT_IN_RANGE(0, RBF_kernel(sigma, INFINITY), 1e-8);
 	}
 
-	// Test that larger sigma have wider influence.
+	// Test that larger values of sigma have wider influence.
 	ASSERT(RBF_kernel(1, 1) < RBF_kernel(2, 1));
 
 	PASS();
@@ -178,7 +178,6 @@ TEST test_idle() {
 	ASSERTm("first idle SV should be in position 4!",
 	        KP_find_idle(&km, 0) == 4);
 
-	// TODO: should we test out-of-range calls?
 	return 0;
 }
 TEST test_BPA_simple_update() { SKIP(); }

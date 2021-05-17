@@ -70,7 +70,7 @@ typedef struct {
 // Perform kernel PA regression. Target y can be NAN for inference.
 float KPA_regress(KP_t *km, const PA_t pa, size_t xi, float y);
 
-// Perform budgeted PA regression. Target y can be NAN.
+// Perform budgeted kernel PA regression. Target y can be NAN for inference.
 float BKPA_regress(KP_t *km, const PA_t pa, size_t xi, float y);
 
 /*
