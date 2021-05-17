@@ -27,6 +27,8 @@ static float quadratic_kernel(size_t i, size_t j) {
 	return k * k;
 }
 
+static float identity_kernel(size_t i, size_t j) { return i == j; }
+
 TEST test_squared_Euclidean() {
 	// Set up kernel.
 	float X[SUPPORT_VECTORS][FEATURE_DIMS] = {
@@ -160,12 +162,10 @@ TEST test_KPA_regression() {
 }
 
 TEST test_idle() {
-	float X[SUPPORT_VECTORS][FEATURE_DIMS];
 	float alpha[SUPPORT_VECTORS] = {0, 2, 3, 5, 0};
-
-	support_vectors = &X;
-	KP_t km = {
-	    .alpha = alpha, .num_alpha = SUPPORT_VECTORS, .kernel = &linear_kernel};
+	KP_t km = {.alpha = alpha,
+	           .num_alpha = SUPPORT_VECTORS,
+	           .kernel = &identity_kernel};
 	ASSERTm("there should be 2 idle SVs!", KP_num_idle(&km) == 2);
 
 	ASSERTm("first idle SV should be in position 0!",
@@ -180,7 +180,6 @@ TEST test_idle() {
 
 	return 0;
 }
-TEST test_BPA_simple_update() { SKIP(); }
 
 float BPA_simple(KP_t *kp, size_t t);
 TEST test_BPA_simple() {
@@ -205,14 +204,13 @@ TEST test_BPA_simple() {
 		ASSERT_EQ_FMTm("BPA simple should absorb a single support vector!",
 		               idle_before + 1, idle_after, "%zu");
 		ASSERTm("BPA-simple loss should > 0!", loss > 0);
-		ASSERTm("BPA-simple should absorb support vector with lowest loss!",
+		ASSERTm("BPA-simple should absorb support vector with minimum loss!",
 		        prev_loss <= loss);
 		prev_loss = loss;
 	}
 	PASS();
 }
 
-static float identity_kernel(size_t i, size_t j) { return i == j; }
 TEST test_BKPA_regression() {
 	PA_t PA = {.C = INFINITY, .eps = 0};
 
@@ -221,7 +219,7 @@ TEST test_BKPA_regression() {
 	KP_t regressor = {
 	    .alpha = alpha,
 	    .num_alpha = SUPPORT_VECTORS,
-	    .kernel = &identity_kernel, // Use a fixed kernel for testing.
+	    .kernel = &identity_kernel,
 	};
 
 	for (size_t pass = 0; pass < 3; ++pass) {
@@ -249,7 +247,6 @@ SUITE(KPA_tests) {
 	RUN_TEST(test_kernel_projection);
 	RUN_TEST(test_KPA_regression);
 	RUN_TEST(test_idle);
-	RUN_TEST(test_BPA_simple_update);
 	RUN_TEST(test_BPA_simple);
 	RUN_TEST(test_BKPA_regression);
 }

@@ -117,6 +117,7 @@ float BPA_simple(KP_t *kp, size_t target) {
 		    .jj = k_tt,
 		};
 		BPA_S_update(k, kp->alpha[curr.r], &curr.proj, &curr.loss);
+		assert(isfinite(curr.loss));
 		if (curr.loss < best.loss) {
 			best = curr;
 		}
