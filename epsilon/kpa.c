@@ -81,22 +81,44 @@ typedef struct {
 	float ii, ij, jj;
 } kernel_pair_t;
 
-void BPA_S_update(const kernel_pair_t k, float a_i, float *proj, float *loss) {
+void BPA_S_absorb(const kernel_pair_t k, float a_r, float *proj, float *L) {
 	/*
-	[w - w']^T K [w - w']
-	l(b) = [a b] [c d; d e] [a b] = aac + 2abd + bbe,
-	with a = -a_i, b = a_t - a_t + p, c = k(r,r), d = k(r,t),
-	and e = k(t,t).
-	Minimize l(b) = minimize 2abd + bbe.
-	dl(b)/db = 2ad + 2be = 0.
-	-> b = -ad/e ->  p = a_i k(r,t)/k(t,t)
-	This corresponds to first part of equation (12) in [1].
-	*/
-	float p = *proj = a_i * k.ij / k.jj;
+	We want to to absorb a support vector r (remove) into a support vector t
+	(target). That can be encode with a new weight vector a', where the
+	coefficient of r is set to zero, and the coefficient of t is changed by
+	adding p (projection). The goal is to find a a' that is minimizes the
+	distortion:
 
-	*loss = a_i * a_i * k.ii;    // l(b) = aac
-	*loss += 2 * a_i * p * k.ij; // + 2abd
-	*loss += p * p * k.jj;       // + bbe.
+	    L = [a' - a]^T K [a' - a].
+
+	We can simplify L by expressing it with the submatrix of K with the elements
+	that differ between a' and a:
+
+	    L = [-a_r, p]^T [k_rr, k_rt; k_rt, k_tt] [-a_r, p].
+
+	Note that we want to find the p that minimizes L. Expand L to:
+
+	    L = [-a_r, p]^T [k_rr, k_rt; k_rt, k_tt] [-a_r, p]
+	      = [-a_r k_rr + p k_rt, -a_r k_rt + p k_tt]  [-a_r, p]
+	      = -a_r (-a_r k_rr + p k_rt) + p (-a_r k_rt + p k_tt)
+	      = a_r^2 k_rr - a_r p k_rt - a_r p k_rt + p^2 k_tt
+	      = a_r^2 k_rr - 2 a_r p k_rt + p^2 k_tt
+
+	To minimize L, can set it's derivative with respect to p to zero:
+
+	    ∂/∂p L = ∂/∂p (-2 a_r p k_rt + p^2 k_tt) = -2 a_r k_rt + 2 p k_tt = 0.
+	    2 p ktt = 2 a_r k_rt => p = a_r k_rt / k_tt.
+
+	This corresponds to the first term of equation (12) for BPA-S in [1].
+	*/
+
+	// Compute p = a_r k_rt / k_tt.
+	float p = *proj = a_r * k.ij / k.jj;
+
+	// Compute L = a_r^2 k_rr - 2 a_r p k_rt + p^2 k_tt.
+	*L = (a_r * a_r * k.ii) - (2 * a_r * p * k.ij) + (p * p * k.jj);
+
+	//assert(*L >= 0);
 }
 
 float BPA_simple(KP_t *kp, size_t target) {
@@ -116,7 +138,7 @@ float BPA_simple(KP_t *kp, size_t target) {
 		    .ij = kp->kernel(curr.r, target),
 		    .jj = k_tt,
 		};
-		BPA_S_update(k, kp->alpha[curr.r], &curr.proj, &curr.loss);
+		BPA_S_absorb(k, kp->alpha[curr.r], &curr.proj, &curr.loss);
 		assert(isfinite(curr.loss));
 		if (curr.loss < best.loss) {
 			best = curr;
