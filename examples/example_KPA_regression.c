@@ -16,7 +16,7 @@ inputs, and should be adapted to the problem.
 kernels: support vector machines, regularization, optimization, and beyond.
 MIT press, 2002. */
 
-#define BUDGET 128
+#define BUDGET 32
 static input_t support_vectors[BUDGET] = {0};
 static float inner_product(size_t a, size_t b) {
 	float k_ab = 1; // Use 1 to implicitly use a bias term.
@@ -31,7 +31,7 @@ static float kernel(size_t a, size_t b) {
 }
 
 int main() {
-	PA_t PA = {.C = 100, .eps = 0.1};
+	PA_t PA = {.C = 10, .eps = 0.01};
 
 	// Initialize a kernel regression model.
 	float alpha[BUDGET] = {0};
@@ -44,7 +44,7 @@ int main() {
 	// Initialize loss statistics to track performance.
 	online_stats_t loss = {0};
 
-	for (size_t t = 0; t < 20 * BUDGET; ++t) {
+	for (size_t t = 0; t < 100 * BUDGET; ++t) {
 		// Get a new input.
 		float input = 10 * (rand() / (float)RAND_MAX) - 5;
 
@@ -56,8 +56,10 @@ int main() {
 		// Predict on new input.
 		float prediction = KPA_regress(&regressor, PA, i, NAN);
 
-		// Define target and update model.
+		// Define target, see https://www.desmos.com/calculator/zxllrku62c.
 		float target = sinf(input);
+
+		// Update model.
 		BKPA_regress(&regressor, PA, i, target);
 
 		// Track loss.
