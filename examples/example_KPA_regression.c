@@ -67,6 +67,8 @@ int main() {
 		observe(&loss, error * error);
 	}
 
-	// Display performance.
+	// Display root mean squared error of predictions. It should be slightly
+	// above zero, due to initial mistakes and the epsilon-insensitive hinge
+	// loss used for training.
 	printf("RMSE: %.3f.\n", sqrtf(mean(&loss)));
 }
