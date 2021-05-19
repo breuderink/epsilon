@@ -61,20 +61,21 @@ float KP_apply(KP_t *km, size_t x1);
 // Get n-th idle (i.e. alpha=0) support vector of kernel projection.
 size_t KP_find_idle(const KP_t *km, size_t n);
 
-// Passive-aggressive parameters.
+// Passive-aggressive parameters, see [6].
 typedef struct {
 	float C;   // Perform aggressive updates with high C.
 	float eps; // Size of insensitive band for regression.
 } PA_t;
 
-// Perform kernel PA regression. Target y can be NAN for inference.
+// Perform kernel PA regression [1]. Target y can be NAN for inference.
 float KPA_regress(KP_t *km, const PA_t pa, size_t xi, float y);
 
-// Perform budgeted kernel PA regression. Target y can be NAN for inference.
+// Perform budgeted kernel PA regression [2]. Target y can be NAN for inference.
 float BKPA_regress(KP_t *km, const PA_t pa, size_t xi, float y);
 
 /*
 # References
+
 [1] Marsaglia, George. "Xorshift RNGs." Journal of Statistical Software 8.14
     (2003): 1-6.
 
@@ -90,4 +91,12 @@ float BKPA_regress(KP_t *km, const PA_t pa, size_t xi, float y);
 [5] Choromanski, Krzysztof, and Vikas Sindhwani. "Recycling randomness
     with structure for sublinear time kernel expansions." International
     Conference on Machine Learning. 2016.
+
+[6] Crammer, K. et al. “Online Passive-Aggressive Algorithms.” J. Mach. Learn.
+	Res. (2003).
+
+[7] Wang, Zhuang, and Slobodan Vucetic.  "Online passive-aggressive
+    algorithms on a budget." Proceedings of the Thirteenth International
+    Conference on Artificial Intelligence and Statistics.  JMLR Workshop and
+    Conference Proceedings, 2010.
 */
