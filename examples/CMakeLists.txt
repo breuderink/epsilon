@@ -18,7 +18,7 @@ add_executable(example_FWHT example_FWHT.c)
 target_link_libraries(example_FWHT epsilon m)
 add_test(NAME example_FWHT COMMAND example_FWHT)
 
-# KPA regression example.
-add_executable(example_KPA_regression example_KPA_regression.c)
-target_link_libraries(example_KPA_regression epsilon m)
-add_test(NAME example_KPA_regression COMMAND example_KPA_regression)
+# BKPA regression example.
+add_executable(example_BKPA_regression example_BKPA_regression.c)
+target_link_libraries(example_BKPA_regression epsilon m)
+add_test(NAME example_BKPA_regression COMMAND example_BKPA_regression)
