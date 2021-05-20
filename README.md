@@ -17,7 +17,7 @@ particular memory-efficient algorithms. Further, the optimization process
 should be reliable. Epsilon provides methods to train and apply machine
 learning methods on microcontrollers.
 
-These algorithms should function on microcontrollers, such as the
+These algorithms should run on microcontrollers, such as the
 [Raspberry Pi Pico](https://www.raspberrypi.org/products/raspberry-pi-pico/),
 the [BBC micro:bit](https://www.microbit.org), the 
 [Arduino Nano 33 BLE Sense](https://store.arduino.cc/arduino-nano-33-ble-sense) 
@@ -56,7 +56,7 @@ hash function that maps variable length input to a fixed output
 hashing](https://en.wikipedia.org/wiki/Feature_hashing).
 
 ## Online statistics
-- Welfords method for computing mean and variance in one pass. See the
+- Welfords method computes mean and variance in a single pass. See the
 [example of Welford's method](examples/example_Welfords_method.c).
 
 ## Feature extraction
@@ -71,8 +71,17 @@ compilation of SORF is disabled by default. Instead one can use a budgeted
 kernel classification or regression.
 
 ## Regression
-- Kernelized passive-aggressive regression
-  ([TODO](https://github.com/breuderink/epsilon/pull/6)).
+- [Online passive-aggressive (PA)](docs/crammer2006opa.pdf) regression solves a
+regression problem by only updating the model on prediction mistakes. When the
+target depends non-linearly on the inputs one can use a kernel that projects the
+input onto a set of support vectors. [Kernel
+methods](https://en.wikipedia.org/wiki/Kernel_method) such as the support vector
+machine (SVM) work efficiently in high-dimensional feature spaces, but don't
+easily scale to large datasets. To scale to large datasets one can [maintain a
+budget](docs/wang2010opa) of support vectors.  The [example of budgeted kernel
+passive aggressive (BKPA) regression ](examples/example_BPKA_regression.c) 
+demonstrates how online, non-linear regression can be performed with a limited
+memory budget.
 
 ## Classification
 - Kernelized passive-aggressive classification (TODO).
