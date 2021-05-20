@@ -78,7 +78,7 @@ input onto a set of support vectors. [Kernel
 methods](https://en.wikipedia.org/wiki/Kernel_method) such as the support vector
 machine (SVM) work efficiently in high-dimensional feature spaces, but don't
 easily scale to large datasets. To scale to large datasets one can [maintain a
-budget](docs/wang2010opa) of support vectors.  The [example of budgeted kernel
+budget](docs/wang2010opa.pdf) of support vectors.  The [example of budgeted kernel
 passive aggressive (BKPA) regression ](examples/example_BPKA_regression.c) 
 demonstrates how online, non-linear regression can be performed with a limited
 memory budget.
