@@ -4,20 +4,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Define problem-specific input structure. Our input is a single position.
+/*
+Define problem-specific input structure. Our input is a single position, but it
+could be a vector, a struct or something else. In addition, we a buffer that
+contains a fixed budget with inputs.
+*/
 typedef struct {
 	float position;
 } input_t;
 
-/* Define a problem-specific kernel. A kernel defines a dot-product between
-inputs, and should be adapted to the problem.
-
-[1] Schölkopf, Bernhard, Alexander J. Smola, and Francis Bach. Learning with
-kernels: support vector machines, regularization, optimization, and beyond.
-MIT press, 2002. */
 
 #define BUDGET 32
 static input_t support_vectors[BUDGET] = {0};
+
+/* 
+Define a problem-specific kernel. A kernel defines a dot-product between inputs,
+and should be adapted to the problem.
+
+[1] Schölkopf, Bernhard, Alexander J. Smola, and Francis Bach. Learning with
+kernels: support vector machines, regularization, optimization, and beyond.
+MIT press, 2002. 
+*/
 static float inner_product(size_t a, size_t b) {
 	float k_ab = 1; // Use 1 to implicitly use a bias term.
 	k_ab += support_vectors[a].position * support_vectors[b].position;
