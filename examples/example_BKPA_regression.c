@@ -13,17 +13,16 @@ typedef struct {
 	float position;
 } input_t;
 
-
 #define BUDGET 32
 static input_t support_vectors[BUDGET] = {0};
 
-/* 
+/*
 Define a problem-specific kernel. A kernel defines a dot-product between inputs,
 and should be adapted to the problem. Here we use the common squared exponential
 kernel [1], that is also known as the Gaussian or RBF kernel.
 
 [1] Gaussian Processes for Machine Learning, Carl Edward Rasmussen and
-	Christopher K. I. Williams The MIT Press, 2006. ISBN 0-262-18253-X.
+    Christopher K. I. Williams The MIT Press, 2006. ISBN 0-262-18253-X.
 */
 static float inner_product(size_t a, size_t b) {
 	float k_ab = 1; // Use 1 to implicitly add a bias term.
@@ -52,26 +51,24 @@ int main() {
 	online_stats_t loss = {0};
 
 	for (size_t t = 0; t < 100 * BUDGET; ++t) {
-		// Get a new input.
+		// Generate a new input.
 		float input = 10 * (rand() / (float)RAND_MAX) - 5;
-
-		// Store input in free support vector to make it available to the
-		// kernel.
-		size_t i = KP_find_idle(&regressor, 0);
-		support_vectors[i].position = input;
-
-		// Predict on new input.
-		float prediction = KPA_regress(&regressor, PA, i, NAN);
 
 		// Define target, see https://www.desmos.com/calculator/zxllrku62c.
 		float target = sinf(input);
 
-		// Update model.
-		BKPA_regress(&regressor, PA, i, target);
+		// Store input in a free support vector to make it available to the
+		// kernel.
+		size_t i = KP_find_idle(&regressor, 0);
+		support_vectors[i].position = input;
 
-		// Track loss.
+		// Predict on new input and track loss.
+		float prediction = KPA_regress(&regressor, PA, i, NAN);
 		float error = prediction - target;
 		observe(&loss, error * error);
+
+		// Update model.
+		BKPA_regress(&regressor, PA, i, target);
 	}
 
 	// Display root mean squared error of predictions. It should be slightly
