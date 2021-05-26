@@ -9,8 +9,8 @@ float squared_Euclidean(kernel_t kernel, size_t a, size_t b) {
 	return kernel(a, a) - 2 * kernel(a, b) + kernel(b, b);
 }
 
-float RBF_kernel(float sigma, float squared_dist) {
-	return expf(-squared_dist / (2 * sigma * sigma));
+float squared_exponential_kernel(float length, float squared_dist) {
+	return expf(-squared_dist / (2 * length * length));
 }
 
 float KP_apply(KP_t *kp, size_t xi) {

@@ -6,8 +6,8 @@
 
 /*
 Define problem-specific input structure. Our input is a single position, but it
-could be a vector, a struct or something else. In addition, we a buffer that
-contains a fixed budget with inputs.
+could be a vector, a struct or something else. In addition, we a create buffer
+that contains a fixed budget with inputs.
 */
 typedef struct {
 	float position;
@@ -19,14 +19,14 @@ static input_t support_vectors[BUDGET] = {0};
 
 /* 
 Define a problem-specific kernel. A kernel defines a dot-product between inputs,
-and should be adapted to the problem.
+and should be adapted to the problem. Here we use the common squared exponential
+kernel [1], that is also known as the Gaussian or RBF kernel.
 
-[1] Schölkopf, Bernhard, Alexander J. Smola, and Francis Bach. Learning with
-kernels: support vector machines, regularization, optimization, and beyond.
-MIT press, 2002. 
+[1] Gaussian Processes for Machine Learning, Carl Edward Rasmussen and
+	Christopher K. I. Williams The MIT Press, 2006. ISBN 0-262-18253-X.
 */
 static float inner_product(size_t a, size_t b) {
-	float k_ab = 1; // Use 1 to implicitly use a bias term.
+	float k_ab = 1; // Use 1 to implicitly add a bias term.
 	k_ab += support_vectors[a].position * support_vectors[b].position;
 	return k_ab;
 }
@@ -34,7 +34,7 @@ static float inner_product(size_t a, size_t b) {
 // Define a RBF kernel by wrapping the inner product defined above.
 static float kernel(size_t a, size_t b) {
 	float d2 = squared_Euclidean(inner_product, a, b);
-	return RBF_kernel(1.0, d2);
+	return squared_exponential_kernel(1.0, d2);
 }
 
 int main() {
