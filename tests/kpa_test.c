@@ -56,7 +56,7 @@ TEST test_squared_Euclidean() {
 	PASS();
 }
 
-TEST test_RBF_kernel() {
+TEST test_squared_exponential_kernel() {
 	const float SIGMA[] = {0.1, 1, 100};
 	for (size_t s = 0; s < sizeof(SIGMA) / sizeof(SIGMA[0]); ++s) {
 		// Test extrema.
@@ -124,7 +124,7 @@ TEST test_KPA_regression() {
 			// Configure PA update.
 			PA_t PA = {.C = COST[c], .eps = MARGIN[m]};
 
-			// Initialize support vectors.
+			// Re-initialize support vectors. They are modified below.
 			float X[SUPPORT_VECTORS][FEATURE_DIMS] = {0};
 			support_vectors = &X;
 
@@ -243,7 +243,7 @@ TEST test_BKPA_regression() {
 
 SUITE(KPA_tests) {
 	RUN_TEST(test_squared_Euclidean);
-	RUN_TEST(test_RBF_kernel);
+	RUN_TEST(test_squared_exponential_kernel);
 	RUN_TEST(test_kernel_projection);
 	RUN_TEST(test_KPA_regression);
 	RUN_TEST(test_idle);
