@@ -17,3 +17,8 @@ add_test(NAME example_Welfords_method COMMAND example_Welfords_method)
 add_executable(example_FWHT example_FWHT.c)
 target_link_libraries(example_FWHT epsilon m)
 add_test(NAME example_FWHT COMMAND example_FWHT)
+
+# BKPA regression example.
+add_executable(example_BKPA_regression example_BKPA_regression.c)
+target_link_libraries(example_BKPA_regression epsilon m)
+add_test(NAME example_BKPA_regression COMMAND example_BKPA_regression)
