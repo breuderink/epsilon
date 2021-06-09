@@ -57,6 +57,10 @@ TEST test_squared_Euclidean() {
 }
 
 TEST test_squared_exponential_kernel() {
+	// Test known values (see https://www.desmos.com/calculator/gwvqopaqkv).
+	ASSERT_IN_RANGE(0.9460, squared_exponential_kernel(3, 1*1), 1e-4);
+	ASSERT_IN_RANGE(0.2494, squared_exponential_kernel(3, 5*5), 1e-4);
+
 	const float SIGMA[] = {0.1, 1, 100};
 	for (size_t s = 0; s < sizeof(SIGMA) / sizeof(SIGMA[0]); ++s) {
 		// Test extrema.
