@@ -11,11 +11,13 @@ test_sources = [
 # Define the RNG exhaustive test option
 rng_exhaustive = get_option('rng_exhaustive')
 
+unity_dep = dependency('unity')
+
 # Build the test executable
 epsilon_test = executable(
     'epsilon_test',
     test_sources,
-    dependencies: [epsilon_dep],
+    dependencies: [epsilon_dep, unity_dep],
     c_args: rng_exhaustive ? ['-DXORSHIFT32_EXHAUSTIVE'] : [],
     install: false,
 )
