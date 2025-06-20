@@ -2,7 +2,7 @@
 Epsilon is a library with small functions for machine learning and statistics
 written in plain C. The functions are decoupled and well tested.
 
-[![tests and examples](https://github.com/breuderink/epsilon/actions/workflows/tests.yml/badge.svg)](https://github.com/breuderink/epsilon/actions/workflows/tests.yml)
+[![CI Meson](https://github.com/breuderink/epsilon/actions/workflows/ci_meson.yml/badge.svg)](https://github.com/breuderink/epsilon/actions/workflows/ci_meson.yml)
 
 ## Motivation
 Most machine learning focuses on training large models on powerful hardware.
@@ -11,7 +11,7 @@ These models are too big to run on microcontrollers. One can compress these
 models to make them fit. The compressed model can make predictions for new
 data. But the model itself remains static, even if the environment changes.
 
-An alternative approach is to optimise the model on the microcontroller
+An alternative approach is to optimize the model on the microcontroller
 itself. In this case, the model can adapt to new data. This requires
 particular memory-efficient algorithms. Further, the optimization process
 should be reliable. Epsilon provides methods to train and apply machine
@@ -38,7 +38,9 @@ the unit tests and the examples with CTest:
 
 
 # Building
-Epsilon uses Meson for building. Install Meson and Ninja, create a build directory, and configure the project. In the repository root, configure and build the project, then run the unit tests and examples:
+Epsilon uses Meson for building. Install Meson and Ninja, create a build
+directory, and configure the project. In the repository root, configure and
+build the project, then run the unit tests and examples:
 
 ```bash
 $ meson setup build
