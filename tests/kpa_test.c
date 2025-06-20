@@ -1,5 +1,5 @@
-#include "epsilon.h"
 #include <assert.h>
+#include <epsilon.h>
 #include <greatest.h>
 #include <math.h>
 #include <stdio.h>
@@ -204,7 +204,7 @@ TEST test_BPA_simple(void) {
 
 		ASSERT(km.alpha[target] != 0);
 		ASSERT_EQ_FMTm("BPA simple should absorb a single support vector!",
-		               idle_before + 1, idle_after, "%zu");
+		               (int)(idle_before + 1), (int)idle_after, "%d");
 		ASSERTm("BPA-simple loss should > 0!", loss > 0);
 		ASSERTm("BPA-simple should absorb support vector with minimum loss!",
 		        prev_loss <= loss);
