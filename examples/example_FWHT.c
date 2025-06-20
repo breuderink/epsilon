@@ -11,7 +11,7 @@ void display(float x[DIMS]) {
 	printf("\n");
 }
 
-int main() {
+int main(void) {
 	// Define and display input vector.
 	float x[DIMS] = {-3, -3, -3, -3, 3, 3, 3, 3};
 	printf("x =\n");

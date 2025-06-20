@@ -7,7 +7,7 @@
 // two "pointers"; the tortoise and the hare. Each time the tortoise
 // advances a step, the hare advances two. When the tortoise finishes a
 // xorshift32 cycle, the tortoise should have finished its second cycle.
-TEST xorshift32_cycle_length() {
+TEST xorshift32_cycle_length(void) {
 	uint32_t tortoise = 0;
 	uint32_t hare = tortoise;
 

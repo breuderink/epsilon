@@ -2,7 +2,7 @@
 #include <greatest.h>
 #include <math.h>
 
-TEST welford_test_mean() {
+TEST welford_test_mean(void) {
 	online_stats_t s = {0};
 
 	for (int i = 0; i < 10; ++i) {
@@ -12,7 +12,7 @@ TEST welford_test_mean() {
 	PASS();
 }
 
-TEST welford_test_var() {
+TEST welford_test_var(void) {
 	online_stats_t s = {0};
 
 	for (int i = 0; i < 10; ++i) {
@@ -47,7 +47,7 @@ TEST welford_edge_cases(float mu, float sigma) {
 	observe(&s, mu + sigma);
 	ASSERT_EQ_FMT(mean(&s), mu, "%f");
 	ASSERT_IN_RANGE(sigma * sigma, pvariance(&s), 1e-4);
-	ASSERT_IN_RANGE(sigma * sigma * (2/1), variance(&s), 1e-3);
+	ASSERT_IN_RANGE(sigma * sigma * (2 / 1), variance(&s), 1e-3);
 
 	PASS();
 }

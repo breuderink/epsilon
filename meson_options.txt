@@ -1,0 +1,3 @@
+# breuderink-epsilon/meson_options.txt
+option('sorf_enabled', type: 'boolean', value: false, description: 'Enable patented SORF')
+option('rng_exhaustive', type: 'boolean', value: false, description: 'Enable exhaustive test for xorshift32')
