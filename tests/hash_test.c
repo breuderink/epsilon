@@ -1,23 +1,15 @@
 #include <epsilon.h>
-#include <greatest.h>
 #include <string.h>
+#include <unity.h>
 
-TEST FNV1a32_test(void) {
-	// Target hashes were computed with https://sha256calc.com/hash/fnv1a32.
+void test_FNV1a32(void) {
 	const char *str = "test";
-	ASSERT_EQ_FMT(0xafd071e5, FNV1a32_hash(str, strlen(str)), "%#10x");
-
+	TEST_ASSERT_EQUAL_HEX32(0xafd071e5, FNV1a32_hash(str, strlen(str)));
 	str = "Test";
-	ASSERT_EQ_FMT(0x2ffcbe05, FNV1a32_hash(str, strlen(str)), "%#10x");
-
-	// Test initial value (i.e. VNV offset basis.)
-	ASSERT_EQ_FMT(0x811c9dc5, FNV1a32_hash(NULL, 0), "%#10x");
-
-	// Test update step in isolation.
-	ASSERT_EQ_FMT(0x340ca71c, FNV1a32_update(FNV1a32_hash(NULL, 0), '1'),
-	              "%#10x");
-
-	PASS();
+	TEST_ASSERT_EQUAL_HEX32(0x2ffcbe05, FNV1a32_hash(str, strlen(str)));
+	TEST_ASSERT_EQUAL_HEX32(0x811c9dc5, FNV1a32_hash(NULL, 0));
+	TEST_ASSERT_EQUAL_HEX32(0x340ca71c,
+	                        FNV1a32_update(FNV1a32_hash(NULL, 0), '1'));
 }
 
-SUITE(hash) { RUN_TEST(FNV1a32_test); }
+void run_hash_tests(void) { RUN_TEST(test_FNV1a32); }

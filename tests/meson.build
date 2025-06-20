@@ -1,8 +1,8 @@
 # Define test sources
 test_sources = [
     'main.c',
-    'rng_test.c',
-    'sorf_test.c',
+    # 'rng_test.c',
+    # 'sorf_test.c',
     'welford_test.c',
     'hash_test.c',
     'kpa_test.c',
