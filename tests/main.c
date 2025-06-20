@@ -1,19 +1,26 @@
-#include <greatest.h>
+#include <unity.h>
 
-GREATEST_MAIN_DEFS();
+void setUp(void) {
+	// Optional setup code, if needed
+}
 
-SUITE_EXTERN(RNG);
-SUITE_EXTERN(hash);
-SUITE_EXTERN(KPA_tests);
-SUITE_EXTERN(SORF_tests);
-SUITE_EXTERN(Welford);
+void tearDown(void) {
+	// Optional teardown code, if needed
+}
 
-int main(int argc, char **argv) {
-	GREATEST_MAIN_BEGIN();
-	RUN_SUITE(RNG);
-	RUN_SUITE(hash);
-	RUN_SUITE(KPA_tests);
-	RUN_SUITE(SORF_tests);
-	RUN_SUITE(Welford);
-	GREATEST_MAIN_END();
+void run_hash_tests(void);
+void run_welford_tests(void);
+void run_kpa_tests(void);
+
+int main(void) {
+	UNITY_BEGIN();
+
+	// Run tests from each file (no suites in Unity, so call directly)
+	// run_rng_tests();
+	run_hash_tests();
+	run_kpa_tests();
+	// run_sorf_tests();
+	run_welford_tests();
+
+	return UNITY_END();
 }

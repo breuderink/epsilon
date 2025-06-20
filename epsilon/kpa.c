@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-float squared_Euclidean(kernel_t kernel, size_t a, size_t b) {
+float squared_euclidean(kernel_t kernel, size_t a, size_t b) {
 	// (a - b)^T (a - b) = a^T a - 2 a^T b + b^T b.
 	return kernel(a, a) - 2 * kernel(a, b) + kernel(b, b);
 }
@@ -27,7 +27,7 @@ float KP_apply(KP_t *kp, size_t xi) {
 /*
 Update for passive aggressive regression solving (19) with PA-1 in [1]:
 
-	w -> w + sign(e) tau x, e = y - y_hat, tau = min(C, loss / x^T x).
+    w -> w + sign(e) tau x, e = y - y_hat, tau = min(C, loss / x^T x).
 
 The update weight sign(e) tau is returned, so that it can be used with
 kernalized implementations.
@@ -121,7 +121,7 @@ void BPA_S_absorb(const kernel_pair_t k, float a_r, float *proj, float *L) {
 	// Compute L = a_r^2 k_rr - 2 a_r p k_rt + p^2 k_tt.
 	*L = (a_r * a_r * k.ii) - (2 * a_r * p * k.ij) + (p * p * k.jj);
 
-	//assert(*L >= 0);
+	// assert(*L >= 0);
 }
 
 float BPA_simple(KP_t *kp, size_t target) {
@@ -169,7 +169,7 @@ float BKPA_regress(KP_t *kp, const PA_t pa, size_t x_i, float y) {
 
 /* References
 [1] Crammer, K. et al. “Online Passive-Aggressive Algorithms.” J. Mach. Learn.
-	Res. (2003).
+    Res. (2003).
 
 [2] Wang, Zhuang, and Slobodan Vucetic.  "Online passive-aggressive
     algorithms on a budget." Proceedings of the Thirteenth International
