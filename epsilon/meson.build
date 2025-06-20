@@ -4,7 +4,8 @@ epsilon_sources = ['rng.c', 'welford.c', 'sorf.c', 'hash.c', 'kpa.c']
 # Define the SORF option
 sorf_enabled = get_option('sorf_enabled')
 
-math_dep = dependency('m', required: false)
+cc = meson.get_compiler('c')
+math_dep = cc.find_library('m', required: false)
 
 # Build the library
 epsilon_lib = library(
