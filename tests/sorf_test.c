@@ -10,7 +10,7 @@
 
 uint16_t SORF_randflip(float *const x, const size_t n, uint16_t lfsr);
 
-TEST test_FWHT() {
+TEST test_FWHT(void) {
 	// Test properties:
 	// 1). W W = n I.
 	// 2). W \neq \sqrt(n) I.
@@ -27,8 +27,7 @@ TEST test_FWHT() {
 		FWHT(x, L2D);
 		for (int i = 0; i < DIMS; ++i) {
 			// Test property 2.
-			ASSERTm("Expected FWHT(x) in {-1, 1}^d!",
-			        x[i] == 1 || x[i] == -1);
+			ASSERTm("Expected FWHT(x) in {-1, 1}^d!", x[i] == 1 || x[i] == -1);
 		}
 
 		FWHT(x, L2D);

@@ -36,11 +36,13 @@ Epsilon uses CMake for building. Create a build directory, and configure the
 project. In the repository root, configure and build the project. Then run
 the unit tests and the examples with CTest:
 
-```
-$ mkdir build && cd build
-$ cmake ..
-$ cmake --build .
-$ ctest
+
+# Building
+Epsilon uses Meson for building. Install Meson and Ninja, create a build directory, and configure the project. In the repository root, configure and build the project, then run the unit tests and examples:
+
+```bash
+$ meson setup build
+$ meson test -C build
 ```
 
 # Algorithms

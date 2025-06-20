@@ -3,15 +3,15 @@
 #include <stdio.h>
 #include <string.h>
 
-int main() {
+int main(void) {
 	// A hash function is a function that maps data of an arbitrary size to a
-	// fixed value. It should be fast to compute, and it should mimise
+	// fixed value. It should be fast to compute, and it should minimize
 	// collisions, where different inputs result in the same output hash value.
 
 	// Compute the hash of similar strings. Their hashes should be
 	// different.
 	const char *data[] = {"Foo", "foo", "foo."};
-	for (int s = 0; s < sizeof(data) / sizeof(data[0]); ++s) {
+	for (size_t s = 0; s < sizeof(data) / sizeof(data[0]); ++s) {
 		// Set string.
 		const char *str = data[s];
 

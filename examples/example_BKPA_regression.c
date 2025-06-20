@@ -36,7 +36,7 @@ static float kernel(size_t a, size_t b) {
 	return squared_exponential_kernel(1.0, d2);
 }
 
-int main() {
+int main(void) {
 	PA_t PA = {.C = 10, .eps = 0.01};
 
 	// Initialize a kernel regression model.

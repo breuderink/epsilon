@@ -2,7 +2,7 @@
 #include <greatest.h>
 #include <string.h>
 
-TEST FNV1a32_test() {
+TEST FNV1a32_test(void) {
 	// Target hashes were computed with https://sha256calc.com/hash/fnv1a32.
 	const char *str = "test";
 	ASSERT_EQ_FMT(0xafd071e5, FNV1a32_hash(str, strlen(str)), "%#10x");
@@ -14,7 +14,8 @@ TEST FNV1a32_test() {
 	ASSERT_EQ_FMT(0x811c9dc5, FNV1a32_hash(NULL, 0), "%#10x");
 
 	// Test update step in isolation.
-	ASSERT_EQ_FMT(0x340ca71c, FNV1a32_update(FNV1a32_hash(NULL, 0), '1'), "%#10x");
+	ASSERT_EQ_FMT(0x340ca71c, FNV1a32_update(FNV1a32_hash(NULL, 0), '1'),
+	              "%#10x");
 
 	PASS();
 }
