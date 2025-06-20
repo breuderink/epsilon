@@ -13,7 +13,7 @@ foreach ex : examples
     exe = executable(
         ex,
         ex + '.c',
-        dependencies: [epsilon_dep, math_dep],
+        dependencies: [epsilon_dep],
         install: false,
     )
     test(ex, exe)
