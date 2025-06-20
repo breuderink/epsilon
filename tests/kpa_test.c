@@ -12,12 +12,11 @@ size_t KP_num_idle(const KP_t *km);
 #define SUPPORT_VECTORS 5
 
 // Use global pointer to point kernel to a set of support vectors.
-static void *support_vectors;
+static float support_vectors[SUPPORT_VECTORS][FEATURE_DIMS] = {0};
 static float linear_kernel(size_t i, size_t j) {
 	float k = 1; // 1 for bias term.
-	const float (*X)[FEATURE_DIMS] = support_vectors;
 	for (int f = 0; f < FEATURE_DIMS; ++f) {
-		k += X[i][f] * X[j][f];
+		k += support_vectors[i][f] * support_vectors[j][f];
 	}
 	return k;
 }
@@ -34,7 +33,7 @@ TEST test_squared_Euclidean(void) {
 	float X[SUPPORT_VECTORS][FEATURE_DIMS] = {
 	    {1, 0}, {2, 0}, {3, 0}, {5, 0}, {0, 7},
 	};
-	support_vectors = &X;
+	memcpy(support_vectors, X, sizeof(support_vectors));
 
 	/*
 	>>> import numpy as np
@@ -80,7 +79,7 @@ TEST test_kernel_projection(void) {
 	float X[SUPPORT_VECTORS][FEATURE_DIMS] = {
 	    {1, 0}, {2, 0}, {3, 0}, {5, 0}, {0, 7},
 	};
-	support_vectors = &X;
+	memcpy(support_vectors, X, sizeof(support_vectors));
 
 	/* Test kernel.
 	>>> import numpy as np
@@ -129,8 +128,7 @@ TEST test_KPA_regression(void) {
 			PA_t PA = {.C = COST[c], .eps = MARGIN[m]};
 
 			// Re-initialize support vectors. They are modified below.
-			float X[SUPPORT_VECTORS][FEATURE_DIMS] = {0};
-			support_vectors = &X;
+			memset(support_vectors, 0, sizeof(support_vectors));
 
 			// Define regressor.
 			float alpha[SUPPORT_VECTORS] = {0};
@@ -144,7 +142,7 @@ TEST test_KPA_regression(void) {
 				// Add input to kernel.
 				assert(regressor.alpha[x_i] == 0);
 				float input = 10 * (rand() / (float)RAND_MAX) - 5;
-				X[x_i][0] = input;
+				support_vectors[x_i][0] = input;
 
 				// Update model.
 				float target = input * input - 10;
@@ -190,7 +188,7 @@ TEST test_BPA_simple(void) {
 	// Set up kernel and projection.
 	float X[SUPPORT_VECTORS][FEATURE_DIMS] = {
 	    {1, 0}, {1, 1}, {1, 2}, {1, 3}, {1, 4}};
-	support_vectors = &X;
+	memcpy(support_vectors, X, sizeof(support_vectors));
 	KP_t km = {
 	    .alpha = (float[SUPPORT_VECTORS]){1, -2, 3, -5, 7},
 	    .num_alpha = SUPPORT_VECTORS,
