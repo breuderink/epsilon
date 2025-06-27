@@ -32,7 +32,7 @@ static float inner_product(size_t a, size_t b) {
 
 // Define a RBF kernel by wrapping the inner product defined above.
 static float kernel(size_t a, size_t b) {
-	float d2 = squared_Euclidean(inner_product, a, b);
+	float d2 = squared_euclidean(inner_product, a, b);
 	return squared_exponential_kernel(1.0, d2);
 }
 

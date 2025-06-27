@@ -42,10 +42,9 @@ void SORF(float *x, uint8_t nbits);
 // SORF.
 void SORF_repeat(float *x1, size_t n1, float *x2, size_t n2);
 
-
 // Kernels.
 typedef float (*kernel_t)(size_t i, size_t j);
-float squared_Euclidean(kernel_t kernel, size_t a, size_t b);
+float squared_euclidean(kernel_t kernel, size_t a, size_t b);
 float squared_exponential_kernel(float length, float squared_dist);
 
 // Kernel projection used to implement kernel passive-aggressive algorithms.
@@ -93,7 +92,7 @@ float BKPA_regress(KP_t *km, const PA_t pa, size_t xi, float y);
     Conference on Machine Learning. 2016.
 
 [6] Crammer, K. et al. “Online Passive-Aggressive Algorithms.” J. Mach. Learn.
-	Res. (2003).
+    Res. (2003).
 
 [7] Wang, Zhuang, and Slobodan Vucetic.  "Online passive-aggressive
     algorithms on a budget." Proceedings of the Thirteenth International
