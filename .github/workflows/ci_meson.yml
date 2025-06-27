@@ -1,14 +1,22 @@
 name: CI Meson
-
 on:
   push:
+    branches:
+      - main
     paths:
-      - "**.c"
-      - "**.h"
+      - '**.c'
+      - '**.h'
+      - 'meson.build'
+      - 'meson_options.txt'
+
   pull_request:
+    branches:
+      - main
     paths:
-      - "**.c"
-      - "**.h"
+      - '**.c'
+      - '**.h'
+      - 'meson.build'
+      - 'meson_options.txt'
 
 jobs:
   build:
