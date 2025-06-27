@@ -8,8 +8,8 @@ project(
 
 # Define subdirectories
 subdir('epsilon')
-subdir('examples')
 subdir('tests')
+subdir('examples')
 
 # Installation rules
 install_data('README.md', install_dir: 'share/doc/epsilon')

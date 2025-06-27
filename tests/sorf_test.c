@@ -1,16 +1,16 @@
 #include <epsilon.h>
-#include <greatest.h>
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <unity.h>
 
 #define L2D 8
 #define DIMS (1 << L2D)
 
 uint16_t SORF_randflip(float *const x, const size_t n, uint16_t lfsr);
 
-TEST test_FWHT(void) {
+void test_FWHT(void) {
 	// Test properties:
 	// 1). W W = n I.
 	// 2). W \neq \sqrt(n) I.
@@ -27,21 +27,21 @@ TEST test_FWHT(void) {
 		FWHT(x, L2D);
 		for (int i = 0; i < DIMS; ++i) {
 			// Test property 2.
-			ASSERTm("Expected FWHT(x) in {-1, 1}^d!", x[i] == 1 || x[i] == -1);
+			TEST_ASSERT_MESSAGE(x[i] == 1 || x[i] == -1,
+			                    "Expected FWHT(x) in {-1, 1}^d!");
 		}
 
 		FWHT(x, L2D);
 		for (int i = 0; i < 1 << L2D; ++i) {
 			// Test property 1.
-			ASSERTm("Expected FWHT(FWHT(x)) == d x!", x[i] == DIMS * x0[i]);
+			TEST_ASSERT_EQUAL_MESSAGE(DIMS * x0[i], x[i],
+			                          "Expected FWHT(FWHT(x)) == d x!");
 		}
 	}
-
-	PASS();
 }
 
 #ifdef SORF_ENABLED
-TEST test_SORF() {
+void test_SORF(void) {
 	float x0[DIMS];
 	float x[DIMS];
 
@@ -63,8 +63,9 @@ TEST test_SORF() {
 			ss_before += x0[i] * x0[i];
 			ss_after += x[i] * x[i];
 		}
-		ASSERTm("Expected SORF normalization of D^(-1/2)!",
-		        fabs(DIMS * ss_before - ss_after) < 1e-6);
+		TEST_ASSERT_FLOAT_WITHIN_MESSAGE(
+		    1e-6, DIMS * ss_before, ss_after,
+		    "Expected SORF normalization of D^(-1/2)!");
 
 		// Check SORF mixing, which is the main use of the SORF transform.
 		// Mixing implies that a sparse vector becomes a dense vector.
@@ -72,14 +73,13 @@ TEST test_SORF() {
 		for (int i = 0; i < DIMS; ++i) {
 			nonzero += x[i] != 0;
 		}
-		ASSERTm("Expected more than one non-zero element in SORF(x)",
-		        nonzero > 1);
-	}
 
-	PASS();
+		TEST_ASSERT_GREATER_OR_EQUAL_INT_MESSAGE(
+		    1, nonzero, "Expected more than one non-zero element in SORF(x)");
+	}
 }
 
-TEST test_randflip() {
+void test_randflip(void) {
 	// Initialize a vector with a counting pattern.
 	float x[DIMS];
 	for (int i = 0; i < DIMS; i++) {
@@ -92,20 +92,19 @@ TEST test_randflip() {
 	// Count flips.
 	int negs = 0;
 	for (int i = 0; i < DIMS; i++) {
-		ASSERTm("randflip8 should only change sign", x[i] == -i || x[i] == i);
+		TEST_ASSERT_MESSAGE(x[i] == -i || x[i] == i,
+		                    "randflip8 should only change sign");
 		negs += x[i] < 0;
 	}
 
 	// Use approximate binomial 95% confidence interval as test.
 	float p_hat = (float)negs / DIMS;
 	float ci = 1.96 * sqrtf(p_hat * (1 - p_hat) / DIMS);
-	ASSERTm("randflip flipped unexpected fraction of array",
-	        0.5 - ci < p_hat && p_hat < 0.5 + ci);
-
-	PASS();
+	TEST_ASSERT_MESSAGE(0.5 - ci < p_hat && p_hat < 0.5 + ci,
+	                    "randflip flipped unexpected fraction of array");
 }
 
-TEST test_repeat() {
+void test_repeat(void) {
 	float source[DIMS], target[DIMS];
 	for (int i = 0; i < DIMS; i++) {
 		source[i] = i;
@@ -114,21 +113,23 @@ TEST test_repeat() {
 	// Test copy repeating.
 	SORF_repeat(source, 3, target, DIMS);
 	for (int i = 0; i < DIMS; i++) {
-		ASSERTm("unexpected value in copy repeat", target[i] == source[i % 3]);
+		TEST_ASSERT_EQUAL_FLOAT_MESSAGE(target[i], source[i % 3],
+		                                "unexpected value in copy repeat");
 	}
 
 	// Test in-place repeating.
 	SORF_repeat(source, 3, source, DIMS);
 	for (int i = 0; i < DIMS; i++) {
-		ASSERTm("unexpected value in in-place repeat",
-		        source[i] == source[i % 3]);
+		TEST_ASSERT_EQUAL_FLOAT_MESSAGE(source[i], source[i % 3],
+		                                "unexpected value in in-place repeat");
 	}
-
-	PASS();
 }
 #endif
 
-SUITE(SORF_tests) {
+void setUp(void) {}
+void tearDown(void) {}
+int main(void) {
+	UNITY_BEGIN();
 	RUN_TEST(test_FWHT);
 
 #ifdef SORF_ENABLED
@@ -136,4 +137,5 @@ SUITE(SORF_tests) {
 	RUN_TEST(test_randflip);
 	RUN_TEST(test_repeat);
 #endif
+	return UNITY_END();
 }

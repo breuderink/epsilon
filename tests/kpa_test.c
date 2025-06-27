@@ -232,7 +232,10 @@ void test_BKPA_regression(void) {
 	}
 }
 
-void run_kpa_tests(void) {
+void setUp(void) {}
+void tearDown(void) {}
+int main(void) {
+	UNITY_BEGIN();
 	RUN_TEST(test_squared_euclidean);
 	RUN_TEST(test_squared_exponential_kernel);
 	RUN_TEST(test_kernel_projection);
@@ -240,4 +243,5 @@ void run_kpa_tests(void) {
 	RUN_TEST(test_idle);
 	RUN_TEST(test_BPA_simple);
 	RUN_TEST(test_BKPA_regression);
+	return UNITY_END();
 }

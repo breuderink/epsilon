@@ -61,9 +61,13 @@ void test_welford_edge_cases(void) {
 	}
 }
 
-// Runner function to group all Welford tests
-void run_welford_tests(void) {
+void setUp(void) {}
+void tearDown(void) {}
+
+int main(void) {
+	UNITY_BEGIN();
 	RUN_TEST(test_welford_mean);
 	RUN_TEST(test_welford_var);
 	RUN_TEST(test_welford_edge_cases);
+	return UNITY_END();
 }

@@ -12,4 +12,10 @@ void test_FNV1a32(void) {
 	                        FNV1a32_update(FNV1a32_hash(NULL, 0), '1'));
 }
 
-void run_hash_tests(void) { RUN_TEST(test_FNV1a32); }
+void setUp(void) {}
+void tearDown(void) {}
+int main(void) {
+	UNITY_BEGIN();
+	RUN_TEST(test_FNV1a32);
+	return UNITY_END();
+}
