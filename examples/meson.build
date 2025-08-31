@@ -5,7 +5,6 @@ examples = [
     'example_FNV_hash',
     'example_Welfords_method',
     'example_FWHT',
-    'example_BKPA_regression',
 ]
 
 # Build and configure tests for each example

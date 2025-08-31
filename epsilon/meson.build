@@ -1,5 +1,5 @@
 # Define the epsilon library
-epsilon_sources = ['rng.c', 'welford.c', 'sorf.c', 'hash.c', 'kpa.c']
+epsilon_sources = ['rng.c', 'welford.c', 'hash.c', 'fwht.c']
 
 cc = meson.get_compiler('c')
 math_dep = cc.find_library('m', required: false)

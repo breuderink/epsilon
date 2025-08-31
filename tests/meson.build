@@ -1,7 +1,7 @@
 # Set up.
 unity_dep = dependency('unity')
 
-tests = ['hash_test', 'kpa_test', 'rng_test', 'welford_test', 'fwht_test']
+tests = ['hash_test', 'rng_test', 'welford_test', 'fwht_test']
 
 # Build and configure tests for each example
 foreach ex : tests
