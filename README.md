@@ -37,8 +37,8 @@ directory, and configure the project. In the repository root, configure and
 build the project, then run the unit tests and examples:
 
 ```bash
-$ meson setup build
-$ meson test -C build
+$ meson setup builddir
+$ meson test -C builddir
 ```
 
 # Algorithms
