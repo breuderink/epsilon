@@ -1,5 +1,5 @@
 # Define the epsilon library
-epsilon_sources = ['rng.c', 'welford.c', 'hash.c', 'fwht.c']
+epsilon_sources = ['rng.c', 'stats.c', 'hash.c', 'fwht.c']
 
 cc = meson.get_compiler('c')
 math_dep = cc.find_library('m', required: false)
@@ -22,4 +22,6 @@ epsilon_dep = declare_dependency(
 )
 
 # Install headers
-install_headers('epsilon.h', subdir: 'epsilon')
+
+epsilon_headers = ['rng.h', 'stats.h', 'hash.h', 'fwht.h', 'pa.h']
+install_headers(epsilon_headers, subdir: 'epsilon')

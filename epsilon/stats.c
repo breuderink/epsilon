@@ -1,7 +1,8 @@
-#include "epsilon.h"
+#include "stats.h"
 #include <assert.h>
+#include <limits.h>
 #include <math.h>
-#include <stddef.h>
+#include <stdint.h>
 
 void Welford_observe(Welfords_method_t *w, size_t n, float x) {
 	float delta_before = (x - w->mean);

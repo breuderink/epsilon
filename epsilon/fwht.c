@@ -1,4 +1,4 @@
-#include "epsilon.h"
+#include "fwht.h"
 #include <assert.h>
 #include <math.h>
 #include <stddef.h>
