@@ -1,4 +1,4 @@
-#include <stats.h>
+#include "epsilon/stats.h"
 #include <stdio.h>
 
 int main(void) {

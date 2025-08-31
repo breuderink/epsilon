@@ -1,5 +1,5 @@
+#include "epsilon/rng.h"
 #include <inttypes.h>
-#include <rng.h>
 #include <stdio.h>
 
 int main(void) {

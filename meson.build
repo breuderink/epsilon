@@ -7,8 +7,6 @@ cc = meson.get_compiler('c')
 math_dep = cc.find_library('m', required: false)
 unity_dep = dependency('unity', required: true)
 
-inc = include_directories('epsilon')
-
 # Library sources
 epsilon_sources = [
   'epsilon/rng.c',
@@ -20,7 +18,6 @@ epsilon_sources = [
 # Build the library
 epsilon_lib = library('epsilon',
   sources: epsilon_sources,
-  include_directories: inc,
   dependencies: math_dep,
   install: true,
   version: meson.project_version()
@@ -28,7 +25,6 @@ epsilon_lib = library('epsilon',
 
 # Dependency object for downstream use
 epsilon_dep = declare_dependency(
-  include_directories: inc,
   link_with: epsilon_lib,
   dependencies: math_dep
 )

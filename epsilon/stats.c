@@ -1,4 +1,4 @@
-#include "stats.h"
+#include "epsilon/stats.h"
 #include <assert.h>
 #include <limits.h>
 #include <math.h>
