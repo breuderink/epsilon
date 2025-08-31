@@ -14,7 +14,7 @@ epsilon_sources = [
   'epsilon/rng.c',
   'epsilon/stats.c',
   'epsilon/hash.c',
-  'epsilon/fwht.c'
+  'epsilon/transform.c'
 ]
 
 # Build the library
@@ -38,17 +38,17 @@ epsilon_headers = [
   'epsilon/rng.h',
   'epsilon/stats.h',
   'epsilon/hash.h',
-  'epsilon/fwht.h',
+  'epsilon/transform.h',
   'epsilon/pa.h'
 ]
 install_headers(epsilon_headers, subdir: 'epsilon')
 
 # Examples
 example_exes = [
-  ['example_FNV_hash', 'examples/example_FNV_hash.c'],
-  ['example_FWHT', 'examples/example_FWHT.c'],
-  ['example_Welfords_method', 'examples/example_Welfords_method.c'],
-  ['example_xorshift', 'examples/example_xorshift.c']
+  ['example_hash', 'examples/example_hash.c'],
+  ['example_transform', 'examples/example_transform.c'],
+  ['example_stats', 'examples/example_stats.c'],
+  ['example_rng', 'examples/example_rng.c']
 ]
 
 foreach pair : example_exes
@@ -61,7 +61,7 @@ test_exes = [
   ['hash_test', 'tests/hash_test.c'],
   ['rng_test', 'tests/rng_test.c'],
   ['stats_test', 'tests/stats_test.c'],
-  ['fwht_test', 'tests/fwht_test.c']
+  ['transform_test', 'tests/transform_test.c']
 ]
 
 foreach pair : test_exes

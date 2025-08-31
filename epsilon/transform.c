@@ -1,4 +1,4 @@
-#include "fwht.h"
+#include "transform.h"
 #include <assert.h>
 #include <math.h>
 #include <stddef.h>

@@ -1,5 +1,5 @@
-#include <fwht.h>
 #include <stdio.h>
+#include <transform.h>
 
 #define LOG2_DIMS 3
 #define DIMS (1 << LOG2_DIMS)
