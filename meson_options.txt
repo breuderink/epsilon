@@ -1,12 +1,2 @@
-option(
-    'sorf_enabled',
-    type: 'boolean',
-    value: false,
-    description: 'Enable patented SORF',
-)
-option(
-    'rng_exhaustive',
-    type: 'boolean',
-    value: false,
-    description: 'Enable exhaustive test for xorshift32',
-)
+option('with_examples', type: 'boolean', value: false, description: 'Build examples')
+option('with_tests', type: 'boolean', value: true, description: 'Build tests')

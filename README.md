@@ -32,19 +32,13 @@ To allow machine learning to run on microcontrollers, the implementations:
 - are easy to tune.
 
 # Building
-Epsilon uses CMake for building. Create a build directory, and configure the
-project. In the repository root, configure and build the project. Then run
-the unit tests and the examples with CTest:
-
-
-# Building
 Epsilon uses Meson for building. Install Meson and Ninja, create a build
 directory, and configure the project. In the repository root, configure and
 build the project, then run the unit tests and examples:
 
 ```bash
-$ meson setup build
-$ meson test -C build
+$ meson setup builddir
+$ meson test -C builddir
 ```
 
 # Algorithms
@@ -54,42 +48,23 @@ pseudo-random number generator by George Marsaglia that has good statistical
 properties. See the [xorshift example](examples/example_xorshift.c).
 
 ## Hashing
-- The [FNV hash](https://tools.ietf.org/html/draft-eastlake-fnv-17) is fast
+- The [FNV hash](https://tools.ietf.org/html/draft-eastlake-fnv-17) is a fast
 hash function that maps variable length input to a fixed output
 ([example](examples/example_FNV_hash.c)). It can be used for [feature
 hashing](https://en.wikipedia.org/wiki/Feature_hashing).
 
-## Online statistics
+## Statistics
 - Welfords method computes mean and variance in a single pass. See the
 [example of Welford's method](examples/example_Welfords_method.c).
 
-## Feature extraction
+## Transformations
 - Fast Walsh-Hadamard transform (FWHT) implements the Walsh-Hardamard
 transform in O(n log n) time. The FWHT similar to the fast Fourier transform
 and the Haar transform. See the [FWHT example](examples/example_FWHT.c).
-- [Structured random orthogonal features](docs/yu2016orf.pdf) (SORF). An O(d
-log d) transformation that can be used for a feature map that approximates a
-specific kernel. Here _d_ is the number of input dimensions. Note that SORF
-is [patented](https://patents.google.com/patent/US20180114145A1), and that
-compilation of SORF is disabled by default. Instead one can use a budgeted
-kernel classification or regression.
 
-## Regression
+## Passive-aggressive learning
 - [Online passive-aggressive (PA)](docs/crammer2006opa.pdf) regression solves a
-regression problem by only updating the model on prediction mistakes. When the
-target depends non-linearly on the inputs one can use a kernel that projects the
-input onto a set of support vectors. [Kernel
-methods](https://en.wikipedia.org/wiki/Kernel_method) such as the support vector
-machine (SVM) work efficiently in high-dimensional feature spaces, but don't
-easily scale to large datasets. To scale to large datasets one can [maintain a
-budget](docs/wang2010opa.pdf) of support vectors.  The [example of budgeted kernel
-passive aggressive (BKPA) regression ](examples/example_BKPA_regression.c) 
-demonstrates how online, non-linear regression can be performed with a limited
-memory budget.
-
-## Classification
-- Kernel passive-aggressive classification (TODO).
-
+regression problem by only updating the model on prediction mistakes. 
 
 # Other solutions for Tiny ML or Edge AI
 - [TensorFlow Lite](https://www.tensorflow.org/lite/)
