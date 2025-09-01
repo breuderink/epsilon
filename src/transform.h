@@ -1,4 +1,3 @@
-
 #ifndef EPSILON_TRANSFORM_H
 #define EPSILON_TRANSFORM_H
 

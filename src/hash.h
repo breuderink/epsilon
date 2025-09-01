@@ -1,4 +1,3 @@
-
 #ifndef EPSILON_HASH_H
 #define EPSILON_HASH_H
 

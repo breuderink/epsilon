@@ -1,4 +1,3 @@
-
 #ifndef EPSILON_STATS_H
 #define EPSILON_STATS_H
 
@@ -20,4 +19,3 @@ float pvariance(const online_stats_t *s);
 float variance(const online_stats_t *s);
 
 #endif // EPSILON_STATS_H
-

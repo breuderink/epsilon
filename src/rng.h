@@ -1,4 +1,3 @@
-
 #ifndef EPSILON_RNG_H
 #define EPSILON_RNG_H
 
