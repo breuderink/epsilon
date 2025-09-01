@@ -45,22 +45,22 @@ $ meson test -C builddir
 ## Pseudo-random number generation
 - [Xorshift](docs/marsaglia2003xrn.pdf) is a fast and simple
 pseudo-random number generator by George Marsaglia that has good statistical
-properties. See the [xorshift example](examples/example_xorshift.c).
+properties. See the [xorshift example](examples/example_rng.c).
 
 ## Hashing
 - The [FNV hash](https://tools.ietf.org/html/draft-eastlake-fnv-17) is a fast
 hash function that maps variable length input to a fixed output
-([example](examples/example_FNV_hash.c)). It can be used for [feature
+([example](examples/example_hash.c)). It can be used for [feature
 hashing](https://en.wikipedia.org/wiki/Feature_hashing).
 
 ## Statistics
-- Welfords method computes mean and variance in a single pass. See the
-[example of Welford's method](examples/example_Welfords_method.c).
+- Welford's method computes mean and variance in a single pass. See the
+[example of Welford's method](examples/example_stats.c).
 
 ## Transformations
-- Fast Walsh-Hadamard transform (FWHT) implements the Walsh-Hardamard
-transform in O(n log n) time. The FWHT similar to the fast Fourier transform
-and the Haar transform. See the [FWHT example](examples/example_FWHT.c).
+- Fast Walsh-Hadamard transform (FWHT) implements the Walsh-Hadamard
+transform in O(n log n) time. FWHT is similar to the fast Fourier transform
+and the Haar transform. See the [FWHT example](examples/example_transform.c).
 
 ## Passive-aggressive learning
 - [Online passive-aggressive (PA)](docs/crammer2006opa.pdf) regression solves a
