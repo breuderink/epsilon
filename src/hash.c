@@ -1,3 +1,5 @@
+
+// FNV-1a 32-bit hash implementation.
 #include <stddef.h>
 #include <stdint.h>
 

@@ -1,4 +1,4 @@
-#include "epsilon/hash.h"
+#include "hash.h"
 #include <string.h>
 #include <unity.h>
 

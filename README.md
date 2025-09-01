@@ -1,6 +1,6 @@
 # Epsilon
-Epsilon is a library with small functions for machine learning and statistics
-written in plain C. The functions are decoupled and well tested.
+
+Epsilon is a C library of small, decoupled, and well-tested functions for machine learning and statistics. It is designed for microcontrollers and resource-constrained environments.
 
 [![CI Meson](https://github.com/breuderink/epsilon/actions/workflows/ci_meson.yml/badge.svg)](https://github.com/breuderink/epsilon/actions/workflows/ci_meson.yml)
 
@@ -31,40 +31,50 @@ To allow machine learning to run on microcontrollers, the implementations:
 - work with fixed-point math when realistic, and
 - are easy to tune.
 
-# Building
-Epsilon uses Meson for building. Install Meson and Ninja, create a build
 directory, and configure the project. In the repository root, configure and
 build the project, then run the unit tests and examples:
 
-```bash
-$ meson setup builddir
-$ meson test -C builddir
+# Folder Structure
+
+```
+/           # Project root
+├── LICENSE
+├── README.md
+├── meson.build
+├── docs/           # Documentation and references
+├── src/            # Source code (.c/.h)
+├── tests/          # Unit tests
+├── examples/       # Example programs
+├── subprojects/    # External dependencies (e.g., Unity)
 ```
 
+# Building & Testing
+Epsilon uses Meson for building. In the repository root:
+
+```bash
+meson setup builddir
+meson compile -C builddir
+meson test -C builddir
+```
+
+
 # Algorithms
+
 ## Pseudo-random number generation
-- [Xorshift](docs/marsaglia2003xrn.pdf) is a fast and simple
-pseudo-random number generator by George Marsaglia that has good statistical
-properties. See the [xorshift example](examples/example_xorshift.c).
+- [Xorshift](docs/marsaglia2003xrn.pdf): Fast, simple PRNG with good statistical properties. See `examples/example_rng.c`.
 
 ## Hashing
-- The [FNV hash](https://tools.ietf.org/html/draft-eastlake-fnv-17) is a fast
-hash function that maps variable length input to a fixed output
-([example](examples/example_FNV_hash.c)). It can be used for [feature
-hashing](https://en.wikipedia.org/wiki/Feature_hashing).
+- [FNV hash](https://tools.ietf.org/html/draft-eastlake-fnv-17): Fast hash for feature hashing. See `examples/example_hash.c`.
 
 ## Statistics
-- Welfords method computes mean and variance in a single pass. See the
-[example of Welford's method](examples/example_Welfords_method.c).
+- Welford's method: Online mean and variance in one pass. See `examples/example_stats.c`.
 
 ## Transformations
-- Fast Walsh-Hadamard transform (FWHT) implements the Walsh-Hardamard
-transform in O(n log n) time. The FWHT similar to the fast Fourier transform
-and the Haar transform. See the [FWHT example](examples/example_FWHT.c).
+- Fast Walsh-Hadamard Transform (FWHT): O(n log n) transform, similar to FFT. See `examples/example_transform.c`.
 
 ## Passive-aggressive learning
-- [Online passive-aggressive (PA)](docs/crammer2006opa.pdf) regression solves a
-regression problem by only updating the model on prediction mistakes. 
+- [Online passive-aggressive (PA)](docs/crammer2006opa.pdf): Regression with updates only on mistakes.
+
 
 # Other solutions for Tiny ML or Edge AI
 - [TensorFlow Lite](https://www.tensorflow.org/lite/)
