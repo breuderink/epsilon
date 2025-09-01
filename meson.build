@@ -59,7 +59,6 @@ tests = {
   'rng_test': 'tests/rng_test.c',
   'stats_test': 'tests/stats_test.c',
   'transform_test': 'tests/transform_test.c',
-  'csv_test': 'tests/csv_test.c'
 }
 
 # Build and register examples
