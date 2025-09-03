@@ -1,4 +1,4 @@
-#include "epsilon/rng.h"
+#include "rng.h"
 #include <inttypes.h>
 #include <stdint.h>
 #include <unity.h>

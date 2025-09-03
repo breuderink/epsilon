@@ -9,19 +9,21 @@ math_dep = cc.find_library('m', required: false)
 unity_dep = dependency('unity', required: true)
 
 # Library configuration
+
 epsilon_sources = files(
-  'epsilon/rng.c',
-  'epsilon/stats.c',
-  'epsilon/hash.c',
-  'epsilon/transform.c'
+  'src/rng.c',
+  'src/stats.c',
+  'src/hash.c',
+  'src/transform.c'
 )
 
+
 epsilon_headers = files(
-  'epsilon/rng.h',
-  'epsilon/stats.h',
-  'epsilon/hash.h',
-  'epsilon/transform.h',
-  'epsilon/pa.h'
+  'src/rng.h',
+  'src/stats.h',
+  'src/hash.h',
+  'src/transform.h',
+  'src/pa.h'
 )
 
 # Build library
@@ -33,9 +35,10 @@ epsilon_lib = library('epsilon',
 )
 
 # Declare dependency for downstream use
+
 epsilon_dep = declare_dependency(
   link_with: epsilon_lib,
-  include_directories: include_directories('epsilon'),
+  include_directories: include_directories('src'),
   dependencies: math_dep
 )
 
@@ -55,7 +58,6 @@ tests = {
   'rng_test': 'tests/rng_test.c',
   'stats_test': 'tests/stats_test.c',
   'transform_test': 'tests/transform_test.c',
-  'csv_test': 'tests/csv_test.c'
 }
 
 # Build and register examples

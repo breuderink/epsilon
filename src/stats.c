@@ -1,4 +1,6 @@
-#include "epsilon/stats.h"
+
+// Online mean and variance (Welford's method).
+#include "stats.h"
 #include <assert.h>
 #include <limits.h>
 #include <math.h>
@@ -12,10 +14,6 @@ void Welford_observe(Welfords_method_t *w, size_t n, float x) {
 	float delta_after = (x - w->mean);
 	w->squared_diff += delta_before * delta_after;
 	assert(isfinite(w->squared_diff));
-
-	// Note that we can track the population variance instead of the squared
-	// difference. That seems more symmetrical, and would prevent squared_diff
-	// from getting to big for a fixed-point implementation.
 }
 
 void observe(online_stats_t *s, float x) {
@@ -23,7 +21,6 @@ void observe(online_stats_t *s, float x) {
 	if (s->n < SIZE_MAX) {
 		s->n++;
 	}
-
 	Welford_observe(&s->Welford, s->n, x);
 }
 

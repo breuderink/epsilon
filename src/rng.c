@@ -1,9 +1,7 @@
+
+// Simple xorshift32 random number generator.
 #include <stdint.h>
 
-// Algorithm `xor` on page 4 of [1].
-//
-// [1] Marsaglia, George. "Xorshift RNGs." Journal of Statistical Software 8.14
-//     (2003): 1-6.
 uint32_t xorshift32(uint32_t y) {
 	if (y == 0)
 		y = 1;
