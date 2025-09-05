@@ -11,6 +11,7 @@ unity_dep = dependency('unity', required: true)
 # Library configuration
 
 epsilon_sources = files(
+  'src/csv.c',
   'src/rng.c',
   'src/stats.c',
   'src/hash.c',
