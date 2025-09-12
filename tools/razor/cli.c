@@ -15,8 +15,8 @@ typedef struct {
 	// Transformation options
 	const char *target_column;
 	const char *predictors;
-	char *interactions[64];
-	size_t n_interactions;
+	// char *interactions[64];
+	// size_t n_interactions;
 
 	// Model options
 	char load_model[MAX_PATH];
@@ -121,9 +121,8 @@ int parse_options(int argc, char **argv, razor_options_t *options) {
 		case 'y':
 			options->target_column = optarg;
 			break;
-		case 'q':
-			if (options->n_interactions < 64)
-				options->interactions[options->n_interactions++] = optarg;
+		case 'i':
+			abort();
 			break;
 		case 'l':
 			options->loss = optarg;
@@ -161,7 +160,7 @@ int parse_options(int argc, char **argv, razor_options_t *options) {
 }
 
 int main(int argc, char **argv) {
-	// Set options
+	// Handle CLI flags.
 	razor_options_t options = {.format = "csv",
 	                           .target_column = "target",
 	                           .loss = "MSE",
@@ -172,11 +171,11 @@ int main(int argc, char **argv) {
 
 	parse_options(argc, argv, &options);
 
+	// Read data file.
 	csv_reader_t reader;
 	csv_row_t row;
-
 	if (csv_reader_open(&reader, options.data_path) != 0) {
-		perror("open");
+		perror("Cannot open data file");
 		exit(1);
 	}
 

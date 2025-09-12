@@ -1,4 +1,5 @@
 #include "csv.h"
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,7 +9,7 @@ static size_t parse_csv_row(char *buf, csv_row_t *row) {
 	row->n_fields = 0;
 	char *p = buf;
 	char *field_start = buf;
-	int in_quotes = 0;
+	bool in_quotes = false;
 
 	while (*p) {
 		if (*p == '"') {
@@ -23,11 +24,14 @@ static size_t parse_csv_row(char *buf, csv_row_t *row) {
 			break;
 		}
 		p++;
+		if (row->n_fields >= CSV_MAX_FIELDS)
+			break;
 	}
 	// Handle case where last field is empty but no newline
 	if (*field_start != 0 && row->n_fields < CSV_MAX_FIELDS) {
 		row->fields[row->n_fields++] = field_start;
 	}
+	printf("Parsed %zu fields\n", row->n_fields);
 	return row->n_fields;
 }
 
@@ -35,12 +39,6 @@ static size_t parse_csv_row(char *buf, csv_row_t *row) {
 int csv_reader_open(csv_reader_t *r, const char *path) {
 	r->f = fopen(path, "r");
 	return r->f != NULL ? 0 : -1;
-}
-
-// Close CSV reader
-void csv_reader_close(csv_reader_t *r) {
-	if (r->f)
-		fclose(r->f);
 }
 
 // Read next row; returns 1 on success, 0 on EOF
@@ -56,7 +54,7 @@ int csv_reader_next(csv_reader_t *r, csv_row_t *row) {
 		// Count quotes to see if row is complete
 		for (char *q = p; *q; q++) {
 			if (*q == '"')
-				in_quotes ^= 1;
+				in_quotes = !in_quotes;
 		}
 		if (!in_quotes)
 			break;        // complete row
@@ -66,8 +64,14 @@ int csv_reader_next(csv_reader_t *r, csv_row_t *row) {
 	}
 
 	if (len == 0)
-		return 0; // EOF
+		return false; // EOF
 
 	parse_csv_row(r->buf, row);
-	return 1;
+	return true;
+}
+
+// Close CSV reader
+void csv_reader_close(csv_reader_t *r) {
+	if (r->f)
+		fclose(r->f);
 }
