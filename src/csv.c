@@ -31,7 +31,7 @@ static size_t parse_csv_row(char *buf, csv_row_t *row) {
 	if (*field_start != 0 && row->n_fields < CSV_MAX_FIELDS) {
 		row->fields[row->n_fields++] = field_start;
 	}
-	printf("Parsed %zu fields\n", row->n_fields);
+	printf("Parsed %d fields\n", (int)row->n_fields);
 	return row->n_fields;
 }
 
