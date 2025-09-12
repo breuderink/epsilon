@@ -72,7 +72,6 @@ void help(razor_options_t const *options) {
 }
 
 int parse_options(int argc, char **argv, razor_options_t *options) {
-
 	static struct option long_options[] = {
 	    // Data options.
 	    {"data", required_argument, 0, 'd'},
@@ -150,7 +149,7 @@ int parse_options(int argc, char **argv, razor_options_t *options) {
 		}
 	}
 
-	if (!strnlen(options->data_path, MAX_PATH)) {
+	if (!strlen(options->data_path)) {
 		fprintf(stderr, "Input file is required.\n");
 		help(options);
 		exit(1);
