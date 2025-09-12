@@ -1,24 +1,26 @@
+#include "csv.h"
 #include <getopt.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+#define MAX_PATH 4096
 typedef struct {
 	// Data options
-	FILE *data_file;
-	FILE *test_file;
+	char data_path[MAX_PATH];
+	char test_path[MAX_PATH];
 	const char *format;
 
 	// Transformation options
 	const char *target_column;
 	const char *predictors;
-	char **interactions;
+	char *interactions[64];
 	size_t n_interactions;
 
 	// Model options
-	FILE *load_model;
-	FILE *save_model;
+	char load_model[MAX_PATH];
+	char save_model[MAX_PATH];
 
 	// Optimization options
 	const char *loss;
@@ -30,7 +32,7 @@ typedef struct {
 	int verbose;
 } razor_options_t;
 
-void help(razor_options_t const options) {
+void help(razor_options_t const *options) {
 	printf("Usage: razor-cli -d FILE [options]\n"
 	       "\n"
 	       "Data:\n"
@@ -48,7 +50,7 @@ void help(razor_options_t const options) {
 	       "  COL      = exact column name\n"
 	       "  WILDCARD = shell-style pattern (*, ?)\n"
 	       "\n",
-	       options.target_column);
+	       options->target_column);
 
 	printf("Model:\n"
 	       "  -L, --load FILE               Load initial model\n"
@@ -61,7 +63,7 @@ void help(razor_options_t const options) {
 	       "  --l1 VALUE                    L1 regularization (default: %.4g)\n"
 	       "  --l2 VALUE                    L2 regularization (default: %.4g)\n"
 	       "\n",
-	       options.lr, options.loss, options.l1, options.l2);
+	       options->lr, options->loss, options->l1, options->l2);
 
 	printf("Miscellaneous:\n"
 	       "  -v, --verbose                 Verbose output\n"
@@ -69,14 +71,7 @@ void help(razor_options_t const options) {
 	       "\n");
 }
 
-int main(int argc, char **argv) {
-	razor_options_t options = {.format = "csv",
-	                           .target_column = "target",
-	                           .loss = "MSE",
-	                           .lr = 0.01,
-	                           .l1 = 1e-2,
-	                           .l2 = 1e-3,
-	                           .verbose = 0};
+int parse_options(int argc, char **argv, razor_options_t *options) {
 
 	static struct option long_options[] = {
 	    // Data options.
@@ -109,35 +104,35 @@ int main(int argc, char **argv) {
 	                          long_options, &long_index)) != -1) {
 		switch (opt) {
 		case 'd':
-			options.data_file = fopen(optarg, "r");
+			strncpy(options->data_path, optarg, MAX_PATH);
 			break;
 		case 't':
-			options.test_file = fopen(optarg, "r");
+			strncpy(options->test_path, optarg, MAX_PATH);
 			break;
 		case 'f':
-			options.format = optarg;
+			options->format = optarg;
 			break;
 		case 'L':
-			options.load_model = fopen(optarg, "r");
+			strncpy(options->load_model, optarg, MAX_PATH);
 			break;
 		case 'S':
-			options.save_model = fopen(optarg, "w");
+			strncpy(options->save_model, optarg, MAX_PATH);
 			break;
 		case 'y':
-			options.target_column = optarg;
+			options->target_column = optarg;
 			break;
 		case 'q':
-			if (options.n_interactions < 64)
-				options.interactions[options.n_interactions++] = optarg;
+			if (options->n_interactions < 64)
+				options->interactions[options->n_interactions++] = optarg;
 			break;
 		case 'l':
-			options.loss = optarg;
+			options->loss = optarg;
 			break;
 		case 'r':
-			options.lr = atof(optarg);
+			options->lr = atof(optarg);
 			break;
 		case 'v':
-			options.verbose = 1;
+			options->verbose = 1;
 			break;
 		case 'h':
 			help(options);
@@ -145,9 +140,9 @@ int main(int argc, char **argv) {
 			break;
 		case 0:
 			if (strcmp(long_options[long_index].name, "l1") == 0)
-				options.l1 = atof(optarg);
+				options->l1 = atof(optarg);
 			if (strcmp(long_options[long_index].name, "l2") == 0)
-				options.l2 = atof(optarg);
+				options->l2 = atof(optarg);
 			break;
 		default:
 			fprintf(stderr, "Unknown option\n");
@@ -156,21 +151,43 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	if (options.verbose) {
-		printf("Target: %s, Loss: %s, LR: %.4g, L1: %.4g, L2: %.4g\n",
-		       options.target_column, options.loss, options.lr, options.l1,
-		       options.l2);
-		for (size_t i = 0; i < options.n_interactions; i++)
-			printf("Interactions: %s\n", options.interactions[i]);
-	}
-
-	if (!options.data_file) {
+	if (!strnlen(options->data_path, MAX_PATH)) {
 		fprintf(stderr, "Input file is required.\n");
 		help(options);
 		exit(1);
 	}
 
-	// TODO: implement training logic
+	return 0;
+}
+
+int main(int argc, char **argv) {
+	// Set options
+	razor_options_t options = {.format = "csv",
+	                           .target_column = "target",
+	                           .loss = "MSE",
+	                           .lr = 0.01,
+	                           .l1 = 1e-2,
+	                           .l2 = 1e-3,
+	                           .verbose = 0};
+
+	parse_options(argc, argv, &options);
+
+	csv_reader_t reader;
+	csv_row_t row;
+
+	if (csv_reader_open(&reader, options.data_path) != 0) {
+		perror("open");
+		exit(1);
+	}
+
+	while (csv_reader_next(&reader, &row)) {
+		for (size_t i = 0; i < row.n_fields; i++)
+			printf("%s|", row.fields[i]);
+		printf("\n");
+		break;
+	}
+
+	csv_reader_close(&reader);
 
 	return 0;
 }

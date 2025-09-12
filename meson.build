@@ -1,6 +1,6 @@
 project('epsilon', 'c',
   version: '0.2.1',
-  default_options: ['c_std=c99', 'warning_level=3', 'werror=true']
+  default_options: ['c_std=c11', 'warning_level=3', 'werror=true']
 )
 
 # Dependencies
@@ -10,6 +10,7 @@ unity_dep = dependency('unity', required: true)
 
 # Sources
 epsilon_sources = files(
+  'src/csv.c',
   'src/rng.c',
   'src/stats.c',
   'src/hash.c',
@@ -17,6 +18,7 @@ epsilon_sources = files(
 )
 
 epsilon_headers = files(
+  'src/csv.h',
   'src/rng.h',
   'src/stats.h',
   'src/hash.h',
@@ -60,7 +62,8 @@ foreach name, source : examples
 endforeach
 
 # Tools (intended for installation)
-executable('razor-cli', 'tools/razor/cli.c',
+executable('razor-cli', files('tools/razor/cli.c'),
+  dependencies: epsilon_dep,
   install: true,
   install_dir: get_option('bindir')
 )
