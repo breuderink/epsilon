@@ -70,6 +70,7 @@ executable('razor-cli', files('tools/razor/cli.c'),
 
 # Tests
 tests = {
+  'csv_test': 'tests/csv_test.c',
   'hash_test': 'tests/hash_test.c',
   'rng_test': 'tests/rng_test.c',
   'stats_test': 'tests/stats_test.c',

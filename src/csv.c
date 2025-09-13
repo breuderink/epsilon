@@ -5,7 +5,7 @@
 #include <string.h>
 
 // Parses a CSV row in-place. Returns number of fields.
-static size_t parse_csv_row(char *buf, csv_row_t *row) {
+size_t parse_csv_row(char *buf, csv_row_t *row) {
 	row->n_fields = 0;
 	char *p = buf;
 	char *field_start = buf;
