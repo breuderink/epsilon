@@ -71,7 +71,17 @@ void help(razor_options_t const *options) {
 	       "\n");
 }
 
+enum { CLI_OK = 0, CLI_HELP = 1, CLI_ERROR = 2 };
 int parse_options(int argc, char **argv, razor_options_t *options) {
+	// Initialize default options.
+	*options = (razor_options_t){.format = "csv",
+	                             .target_column = "target",
+	                             .loss = "MSE",
+	                             .lr = 0.01,
+	                             .l1 = 1e-2,
+	                             .l2 = 1e-3,
+	                             .verbose = 0};
+
 	static struct option long_options[] = {
 	    // Data options.
 	    {"data", required_argument, 0, 'd'},
@@ -133,9 +143,7 @@ int parse_options(int argc, char **argv, razor_options_t *options) {
 			options->verbose = 1;
 			break;
 		case 'h':
-			help(options);
-			exit(0);
-			break;
+			return CLI_HELP;
 		case 0:
 			if (strcmp(long_options[long_index].name, "l1") == 0)
 				options->l1 = atof(optarg);
@@ -143,32 +151,31 @@ int parse_options(int argc, char **argv, razor_options_t *options) {
 				options->l2 = atof(optarg);
 			break;
 		default:
-			fprintf(stderr, "Unknown option\n");
-			help(options);
-			exit(1);
+			return CLI_ERROR;
 		}
 	}
 
 	if (!strlen(options->data_path)) {
 		fprintf(stderr, "Input file is required.\n");
-		help(options);
-		exit(1);
+		return CLI_ERROR;
 	}
 
-	return 0;
+	return CLI_OK;
 }
 
 int main(int argc, char **argv) {
-	// Handle CLI flags.
-	razor_options_t options = {.format = "csv",
-	                           .target_column = "target",
-	                           .loss = "MSE",
-	                           .lr = 0.01,
-	                           .l1 = 1e-2,
-	                           .l2 = 1e-3,
-	                           .verbose = 0};
-
-	parse_options(argc, argv, &options);
+	razor_options_t options = {0};
+	switch (parse_options(argc, argv, &options)) {
+	case CLI_OK:
+		break;
+	case CLI_HELP:
+		help(&options);
+		exit(0);
+	case CLI_ERROR:
+	default:
+		help(&options);
+		exit(1);
+	}
 
 	// Read data file.
 	csv_reader_t reader;
