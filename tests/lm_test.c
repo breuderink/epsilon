@@ -44,12 +44,12 @@ size_t sample(const float *log_probs, size_t n, float u) {
 	return n - 1;
 }
 
-void ema_grad(const float *log_probs, const float *y, float *logits_grad,
-              size_t n, float decay) {
+void ema_grad(const float *log_probs, size_t y, float *logits_grad, size_t n,
+              float decay) {
 	assert(0 < decay && decay <= 1);
 
 	for (size_t i = 0; i < n; i++) {
-		float g = expf(log_probs[i]) - y[i];
+		float g = expf(log_probs[i]) - (float)(i == y);
 		assert(isfinite(g));
 		logits_grad[i] += decay * (g - logits_grad[i]);
 	}
@@ -111,7 +111,7 @@ void test_grad(void) {
 	    logf(0.9f),
 	    nextafterf(-INFINITY, 0),
 	};
-	const float y[] = {0, 1, 0};
+	const size_t y = 1;
 
 	// Set initial gradients.
 	float logits_grad[] = {5, 5, 5};
@@ -130,18 +130,21 @@ void test_grad(void) {
 }
 
 void test_grad_step(void) {
-	float y[] = {0, 1, 0};
-	float z[] = {0, 0, 0};
-	float z_grad[] = {0, 0, 0};
-	const size_t n = sizeof(y) / sizeof(y[0]);
-	float log_probs[n];
+	enum { N = 3 };
+	float z[N] = {0, 0, 0};
+	float z_grad[N] = {0, 0, 0};
+	float log_probs[N];
+
+	size_t y = 1;
+	log_softmax(z, log_probs, N, 1.0f);
+	TEST_ASSERT_FLOAT_WITHIN(1e-6f, logf(1.0f / N), log_probs[0]);
 
 	for (size_t i = 0; i < 100; i++) {
-		log_softmax(z, log_probs, n, 1.0f);
-		ema_grad(log_probs, y, z_grad, n, 0.1f);
-		grad_step(z_grad, z, n, -1.0f); // learning rate = 1.0
+		log_softmax(z, log_probs, N, 1.0f);
+		ema_grad(log_probs, y, z_grad, N, 0.1f);
+		grad_step(z_grad, z, N, -1.0f); // learning rate = 1.0
 	}
-	TEST_ASSERT_FLOAT_WITHIN(1e-2f, cross_entropy(log_probs, y, n), 0);
+	TEST_ASSERT_FLOAT_WITHIN(1e-2f, 0, log_probs[y]);
 }
 
 void setUp(void) {}
