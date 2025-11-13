@@ -51,6 +51,9 @@ typedef struct {
 	float decay;
 } policy_t;
 
+// Perform a policy step. When the action y is -1, sample using u in [0, 1]. The
+// gradients are accumulated with an EMA and can be used for a gradient step
+// later.
 int policy_step(policy_t *p, int y, float u) {
 	// Compute probabilities.
 	log_softmax(p->logits, p->probs, p->vocab_size, 1.0f);
@@ -59,7 +62,7 @@ int policy_step(policy_t *p, int y, float u) {
 	}
 
 	// Sample when u is provided.
-	if (0 <= u && u <= 1.0f) {
+	if (y < 0) {
 		y = sample(p->probs, p->vocab_size, u);
 		assert(0 <= y && y < (int)p->vocab_size);
 	}
@@ -69,11 +72,11 @@ int policy_step(policy_t *p, int y, float u) {
 	return y;
 }
 
-void grad_step(const float *logits_grad, float *logits, size_t n,
-               float step_size) {
-	for (size_t i = 0; i < n; i++) {
-		logits[i] += step_size * logits_grad[i];
-		assert(isfinite(logits[i]));
+// Perform a gradient step on the logits using the accumulated gradients.
+void grad_step(policy_t *p, float step_size) {
+	for (size_t i = 0; i < p->vocab_size; i++) {
+		p->logits[i] += step_size * p->logits_grad[i];
+		assert(isfinite(p->logits[i]));
 	}
 }
 
@@ -137,7 +140,7 @@ void test_policy_forced(void) {
 	float z[N] = {0, 0, 0};
 	float z_grad[N] = {0, 0, 0};
 	float probs[N];
-	float learning_rate = 1.0f;
+	float step_size = -1.0f;
 
 	policy_t policy = {.logits = z,
 	                   .logits_grad = z_grad,
@@ -152,7 +155,7 @@ void test_policy_forced(void) {
 	for (size_t i = 0; i < 100; i++) {
 		policy_step(&policy, y, NAN);
 		TEST_ASSERT_FLOAT_WITHIN(1e-6f, 1.0f, probs[0] + probs[1] + probs[2]);
-		grad_step(policy.logits_grad, policy.logits, N, -learning_rate);
+		grad_step(&policy, step_size);
 	}
 	TEST_ASSERT_FLOAT_WITHIN(1e-2f, 0, logf(probs[y]));
 }
