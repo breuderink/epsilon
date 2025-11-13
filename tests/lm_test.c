@@ -6,20 +6,20 @@
 #include <unity.h>
 
 void log_softmax(const float *logits, float *log_probs, size_t n, float temp) {
-	// Find max for numerical stability
+	// Find max for numerical stability.
 	float max_logit = -INFINITY;
 	for (size_t i = 0; i < n; i++)
 		if (logits[i] > max_logit)
 			max_logit = logits[i];
 
-	// Subtract max, compute exp, sum (store intermediate probs in place)
+	// Compute sum for normalization.
 	float sum = 0.0f;
 	for (size_t i = 0; i < n; i++) {
 		log_probs[i] = expf((logits[i] - max_logit) / temp);
 		sum += log_probs[i];
 	}
 
-	// Take log and normalize -> result is log-probabilities
+	// Normalize.
 	float log_sum = logf(sum);
 	for (size_t i = 0; i < n; i++)
 		log_probs[i] = logf(log_probs[i]) - log_sum;
@@ -65,11 +65,11 @@ void grad_step(const float *logits_grad, float *logits, size_t n,
 }
 
 void test_log_softmax(void) {
-	const size_t n = 3;
-	const float input[n] = {1.0f, 2.0f, 3.0f};
+	const float input[] = {1, 2, 3};
+	const size_t n = sizeof(input) / sizeof(input[0]);
 	float output[n];
 
-	log_softmax(input, output, n, 1.0f);
+	log_softmax(input, output, n, 1);
 
 	float expected[n] = {
 	    logf(0.09003057f),
@@ -80,69 +80,69 @@ void test_log_softmax(void) {
 }
 
 void test_sample(void) {
-	const size_t n = 3;
-	const float log_probs[n] = {
+	const float log_probs[] = {
 	    logf(0.1f),
 	    logf(0.9f),
-	    nextafterf(-INFINITY, 0.0f),
+	    nextafterf(-INFINITY, 0),
 	};
+	const size_t n = sizeof(log_probs) / sizeof(log_probs[0]);
 
 	TEST_ASSERT_EQUAL_size_t(0, sample(log_probs, n, 0.05f));
 	TEST_ASSERT_EQUAL_size_t(1, sample(log_probs, n, 0.5f));
 	TEST_ASSERT_EQUAL_size_t(1, sample(log_probs, n, 0.95f));
+	TEST_ASSERT_EQUAL_size_t(1, sample(log_probs, n, 0.95f));
 }
 
 void test_nll(void) {
-	const size_t n = 3;
-	const float log_probs[n] = {
+	const float log_probs[] = {
 	    logf(0.1f),
 	    logf(0.9f),
 	    nextafterf(-INFINITY, 0.0f),
 	};
-	const float y[n] = {0.0f, 1.0f, 0.0f};
+	const float y[] = {0.0f, 1.0f, 0.0f};
+	size_t n = sizeof(log_probs) / sizeof(log_probs[0]);
 
 	float loss = nll(log_probs, y, n);
 	TEST_ASSERT_FLOAT_WITHIN(1e-4f, 0.10536052f, loss);
 }
 
 void test_grad(void) {
-	const size_t n = 3;
-	const float log_probs[n] = {
+	const float log_probs[] = {
 	    logf(0.1f),
 	    logf(0.9f),
-	    nextafterf(-INFINITY, 0.0f),
+	    nextafterf(-INFINITY, 0),
 	};
-	const float y[n] = {0.0f, 1.0f, 0.0f};
+	const float y[] = {0, 1, 0};
 
-	// Set initial gradients to 5.
-	float logits_grad[n] = {5.0f, 5.0f, 5.0f};
+	// Set initial gradients.
+	float logits_grad[] = {5, 5, 5};
 
-	// Apply EMA gradient update with decay = 0.1.
+	// Apply accumulate_grad with decay = 0.1.
+	size_t n = sizeof(log_probs) / sizeof(log_probs[0]);
 	const float decay = 0.1f;
 	ema_grad(log_probs, y, logits_grad, n, decay);
 
 	// Check expected gradients.
-	float expected[n] = {(1 - decay) * 5.0f + decay * (0.1f - 0.0f),
-	                     (1 - decay) * 5.0f + decay * (0.9f - 1.0f),
-	                     (1 - decay) * 5.0f + decay * (0.0f - 0.0f)};
+	float expected[] = {(1 - decay) * 5 + decay * (0.1f - 0),
+	                    (1 - decay) * 5 + decay * (0.9f - 1),
+	                    (1 - decay) * 5 + decay * (0.0f - 0)};
 
 	TEST_ASSERT_FLOAT_ARRAY_WITHIN(1e-4f, expected, logits_grad, n);
 }
 
 void test_grad_step(void) {
-	const size_t n = 3;
-	float z[n] = {0.0f};
-	float z_grad[n] = {0.0f};
-
-	float y[n] = {0.0f, 1.0f, 0.0f};
+	float y[] = {0, 1, 0};
+	float z[] = {0, 0, 0};
+	float z_grad[] = {0, 0, 0};
+	const size_t n = sizeof(y) / sizeof(y[0]);
 	float log_probs[n];
 
 	for (size_t i = 0; i < 100; i++) {
 		log_softmax(z, log_probs, n, 1.0f);
 		ema_grad(log_probs, y, z_grad, n, 0.1f);
-		grad_step(z_grad, z, n, -1.0f); // learning rate = 1.0f
+		grad_step(z_grad, z, n, -1.0f); // learning rate = 1.0
 	}
-	TEST_ASSERT_FLOAT_WITHIN(1e-2f, nll(log_probs, y, n), 0.0f);
+	TEST_ASSERT_FLOAT_WITHIN(1e-2f, nll(log_probs, y, n), 0);
 }
 
 void setUp(void) {}
