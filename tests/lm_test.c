@@ -1,8 +1,6 @@
 #include <assert.h>
-#include <float.h>
 #include <math.h>
 #include <stddef.h>
-#include <string.h>
 #include <unity.h>
 
 void log_softmax(const float *logits, float *log_probs, size_t n, float temp) {
@@ -25,7 +23,7 @@ void log_softmax(const float *logits, float *log_probs, size_t n, float temp) {
 		log_probs[i] = logf(log_probs[i]) - log_sum;
 }
 
-float nll(const float *log_probs, const float *y, size_t n) {
+float cross_entropy(const float *log_probs, const float *y, size_t n) {
 	float loss = 0.0f;
 	for (size_t i = 0; i < n; i++) {
 		assert(isfinite(log_probs[i]));
@@ -36,7 +34,7 @@ float nll(const float *log_probs, const float *y, size_t n) {
 }
 
 size_t sample(const float *log_probs, size_t n, float u) {
-	assert(0.0f <= u && u < 1.0f);
+	assert(0.0f <= u && u <= 1.0f);
 	for (size_t i = 0; i < n; i++) {
 		u -= expf(log_probs[i]);
 		if (u < 0.0f) {
@@ -61,49 +59,50 @@ void grad_step(const float *logits_grad, float *logits, size_t n,
                float step_size) {
 	for (size_t i = 0; i < n; i++) {
 		logits[i] += step_size * logits_grad[i];
+		assert(isfinite(logits[i]));
 	}
 }
 
 void test_log_softmax(void) {
-	const float input[] = {1, 2, 3};
-	const size_t n = sizeof(input) / sizeof(input[0]);
-	float output[n];
+	enum { N = 3 };
+	const float input[N] = {1, 2, 3};
+	float output[N] = {0, 0, 0};
 
-	log_softmax(input, output, n, 1);
+	log_softmax(input, output, N, 1);
 
-	float expected[] = {
+	float expected[N] = {
 	    logf(0.09003057f),
 	    logf(0.24472847f),
 	    logf(0.66524096f),
 	};
-	TEST_ASSERT_FLOAT_ARRAY_WITHIN(1e-4f, expected, output, n);
+	TEST_ASSERT_FLOAT_ARRAY_WITHIN(1e-4f, expected, output, N);
 }
 
 void test_sample(void) {
-	const float log_probs[] = {
-	    logf(0.1f),
-	    logf(0.9f),
-	    nextafterf(-INFINITY, 0),
-	};
-	const size_t n = sizeof(log_probs) / sizeof(log_probs[0]);
+	enum { N = 3 };
+	const float logits[N] = {-5, 0, 1};
+	float log_probs[N] = {0, 0, 0};
+	log_softmax(logits, log_probs, N, 1);
 
-	TEST_ASSERT_EQUAL_size_t(0, sample(log_probs, n, 0.05f));
-	TEST_ASSERT_EQUAL_size_t(1, sample(log_probs, n, 0.5f));
-	TEST_ASSERT_EQUAL_size_t(1, sample(log_probs, n, 0.95f));
-	TEST_ASSERT_EQUAL_size_t(1, sample(log_probs, n, 0.95f));
+	TEST_ASSERT_EQUAL_size_t(0, sample(log_probs, N, 0.0f));
+	TEST_ASSERT_EQUAL_size_t(1, sample(log_probs, N, 0.26f));
+	TEST_ASSERT_EQUAL_size_t(2, sample(log_probs, N, 0.28f));
+	TEST_ASSERT_EQUAL_size_t(2, sample(log_probs, N, 1.0f));
 }
 
-void test_nll(void) {
-	const float log_probs[] = {
-	    logf(0.1f),
-	    logf(0.9f),
-	    nextafterf(-INFINITY, 0.0f),
-	};
-	const float y[] = {0.0f, 1.0f, 0.0f};
-	size_t n = sizeof(log_probs) / sizeof(log_probs[0]);
+void test_cross_entropy(void) {
+	enum { N = 3 };
+	const float logits[N] = {-3, 1, 2};
+	float log_probs[N];
+	log_softmax(logits, log_probs, N, 1);
 
-	float loss = nll(log_probs, y, n);
-	TEST_ASSERT_FLOAT_WITHIN(1e-4f, 0.10536052f, loss);
+	const float y[N] = {0, 1, 0};
+	float loss = cross_entropy(log_probs, y, N);
+
+	// >>> from keras.ops import categorical_crossentropy
+	// >>> categorical_crossentropy([0, 1, 0], [-3., 1., 2.], from_logits=True)
+	// <tf.Tensor: shape=(), dtype=float32, numpy=1.3181754350662231>
+	TEST_ASSERT_FLOAT_WITHIN(1e-4f, 1.3181, loss);
 }
 
 void test_grad(void) {
@@ -142,7 +141,7 @@ void test_grad_step(void) {
 		ema_grad(log_probs, y, z_grad, n, 0.1f);
 		grad_step(z_grad, z, n, -1.0f); // learning rate = 1.0
 	}
-	TEST_ASSERT_FLOAT_WITHIN(1e-2f, nll(log_probs, y, n), 0);
+	TEST_ASSERT_FLOAT_WITHIN(1e-2f, cross_entropy(log_probs, y, n), 0);
 }
 
 void setUp(void) {}
@@ -151,7 +150,7 @@ int main(void) {
 	UNITY_BEGIN();
 	RUN_TEST(test_log_softmax);
 	RUN_TEST(test_sample);
-	RUN_TEST(test_nll);
+	RUN_TEST(test_cross_entropy);
 	RUN_TEST(test_grad);
 	RUN_TEST(test_grad_step);
 	return UNITY_END();
