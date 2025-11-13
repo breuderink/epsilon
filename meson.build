@@ -8,17 +8,17 @@ cc = meson.get_compiler('c')
 math_dep = cc.find_library('m', required: false)
 unity_dep = dependency('unity', required: true)
 
-# Library configuration
-
+# Sources
 epsilon_sources = files(
+  'src/csv.c',
   'src/rng.c',
   'src/stats.c',
   'src/hash.c',
   'src/transform.c'
 )
 
-
 epsilon_headers = files(
+  'src/csv.h',
   'src/rng.h',
   'src/stats.h',
   'src/hash.h',
@@ -26,7 +26,7 @@ epsilon_headers = files(
   'src/pa.h'
 )
 
-# Build library
+# Library
 epsilon_lib = library('epsilon',
   sources: epsilon_sources,
   dependencies: math_dep,
@@ -34,19 +34,17 @@ epsilon_lib = library('epsilon',
   version: meson.project_version()
 )
 
-# Declare dependency for downstream use
-
+# Declare dependency for downstream use (export include dirs / link)
 epsilon_dep = declare_dependency(
   link_with: epsilon_lib,
   include_directories: include_directories('src'),
   dependencies: math_dep
 )
 
-# Install headers
-
+# Install public headers
 install_headers(epsilon_headers, subdir: 'epsilon')
 
-# Examples and tests configuration
+# Examples & tools
 examples = {
   'example_hash': 'examples/example_hash.c',
   'example_transform': 'examples/example_transform.c',
@@ -54,14 +52,7 @@ examples = {
   'example_rng': 'examples/example_rng.c'
 }
 
-tests = {
-  'hash_test': 'tests/hash_test.c',
-  'rng_test': 'tests/rng_test.c',
-  'stats_test': 'tests/stats_test.c',
-  'transform_test': 'tests/transform_test.c',
-}
-
-# Build and register examples
+# Build and register examples (not installed)
 foreach name, source : examples
   exe = executable(name, source,
     dependencies: epsilon_dep,
@@ -70,7 +61,22 @@ foreach name, source : examples
   test(name, exe)
 endforeach
 
-# Build and register tests
+# Tools (intended for installation)
+executable('razor-cli', files('tools/razor/cli.c'),
+  dependencies: epsilon_dep,
+  install: true,
+  install_dir: get_option('bindir')
+)
+
+# Tests
+tests = {
+  'csv_test': 'tests/csv_test.c',
+  'hash_test': 'tests/hash_test.c',
+  'rng_test': 'tests/rng_test.c',
+  'stats_test': 'tests/stats_test.c',
+  'transform_test': 'tests/transform_test.c',
+}
+
 foreach name, source : tests
   exe = executable(name, source,
     dependencies: [epsilon_dep, unity_dep],
@@ -79,11 +85,10 @@ foreach name, source : tests
   test(name, exe)
 endforeach
 
-# Documentation installation
+# Docs & packaging
 install_data(
   files('README.md', 'LICENSE'),
   install_dir: 'share/doc/epsilon'
 )
 
-# Distribution metadata
 meson.add_dist_script('echo', 'Package contact: boris@cortext.nl')

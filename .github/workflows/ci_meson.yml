@@ -19,6 +19,7 @@ jobs:
           python-version: '3.x'
       - run: python -m pip install meson==${{ matrix.meson_version }} ninja
       - run: meson setup builddir/
+      - run: meson compile -C builddir/
       - run: meson test -C builddir/ -v
       - uses: actions/upload-artifact@v4
         if: failure()
