@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <math.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include <unity.h>
 
 void log_softmax(const float *logits, float *log_probs, size_t n, float temp) {
@@ -115,79 +116,86 @@ void test_sample(void) {
 	TEST_ASSERT_EQUAL_size_t(2, sample(probs, N, 1.0f));
 }
 
-void test_grad(void) {
-	enum { N = 3 };
-	const float probs[] = {0.1f, 0.9f, 0.0f};
-	const size_t y = 1;
+static policy_t test_policy;
 
-	// Set initial gradients.
-	float logits_grad[] = {5, 5, 5};
+void setUp(void) {
+	const size_t n = 10;
+
+	test_policy = (policy_t){
+	    .vocab_size = n,
+	    .logits = calloc(n, sizeof(float)),
+	    .logits_grad = calloc(n, sizeof(float)),
+	    .probs = calloc(n, sizeof(float)),
+	    .decay = 0.1,
+	};
+}
+
+void tearDown(void) {
+	free(test_policy.logits);
+	free(test_policy.logits_grad);
+	free(test_policy.probs);
+}
+
+void test_grad(void) {
+	const float probs[3] = {0.1f, 0.9f, 0.0f};
+	const size_t y = 1;
+	float logits_grad[3] = {5, 5, 5};
+	float decay = 0.1f;
 
 	// Apply accumulate_grad with decay = 0.1.
-	const float decay = 0.1f;
-	ema_grad(probs, y, logits_grad, N, decay);
+	ema_grad(probs, y, logits_grad, 3, decay);
 
 	// Check expected gradients.
 	float expected[] = {(1 - decay) * 5 + decay * (0.1f - 0),
 	                    (1 - decay) * 5 + decay * (0.9f - 1),
 	                    (1 - decay) * 5 + decay * (0.0f - 0)};
 
-	TEST_ASSERT_FLOAT_ARRAY_WITHIN(1e-4f, expected, logits_grad, N);
+	TEST_ASSERT_FLOAT_ARRAY_WITHIN(1e-4f, expected, logits_grad, 3);
 }
 
 void test_policy_forced(void) {
-	enum { N = 3 };
-	float z[N] = {0, 0, 0};
-	float z_grad[N] = {0, 0, 0};
-	float probs[N];
+	policy_t *p = &test_policy;
+	p->vocab_size = 3;
+	p->decay = 0.1f;
 	float step_size = -1.0f;
 
-	policy_t policy = {.logits = z,
-	                   .logits_grad = z_grad,
-	                   .probs = probs,
-	                   .vocab_size = N,
-	                   .decay = 0.1f};
-
 	int y = 2;
-	policy_step(&policy, y, NAN);
-	TEST_ASSERT_FLOAT_WITHIN(1e-6f, 1.0f / N, probs[y]);
+	policy_step(p, y, NAN);
+	TEST_ASSERT_FLOAT_WITHIN(1e-6f, 1.0f / p->vocab_size, p->probs[y]);
 
 	for (size_t i = 0; i < 100; i++) {
-		policy_step(&policy, y, NAN);
-		TEST_ASSERT_FLOAT_WITHIN(1e-6f, 1.0f, probs[0] + probs[1] + probs[2]);
-		grad_step(&policy, step_size);
+		policy_step(p, y, NAN);
+		TEST_ASSERT_FLOAT_WITHIN(1e-6f, 1.0f,
+		                         p->probs[0] + p->probs[1] + p->probs[2]);
+		grad_step(p, step_size);
 	}
-	TEST_ASSERT_FLOAT_WITHIN(1e-2f, 0, logf(probs[y]));
+	TEST_ASSERT_FLOAT_WITHIN(1e-2f, 0, logf(p->probs[y]));
 }
 
-#include <stdlib.h>
 void test_policy_sampled(void) {
-	enum { N = 10 };
-	float z[N] = {0};
-	float z_grad[N] = {0};
-	float probs[N];
-
-	policy_t policy = {.logits = z,
-	                   .logits_grad = z_grad,
-	                   .probs = probs,
-	                   .vocab_size = N,
-	                   .decay = 0.5f};
+	policy_t *p = &test_policy;
+	p->vocab_size = 5;
+	p->decay = 0.5f;
 
 	int y = 1;
-	policy_step(&policy, y, NAN);
-	TEST_ASSERT_FLOAT_WITHIN(1e-6f, 1.0f / N, probs[y]);
+	policy_step(p, y, NAN);
+	TEST_ASSERT_FLOAT_WITHIN(1e-6f, 1.0f / p->vocab_size, p->probs[y]);
 
-	for (size_t i = 0; i < 100; i++) {
-		float u = rand() / (float)RAND_MAX;
-		int y_hat = policy_step(&policy, -1, u);
-		grad_step(&policy, (y_hat == y ? -1.0 : 1.0));
+	for (size_t i = 0; i < 200; i++) {
+		// For testing we sample deterministically.
+		float u = (i % p->vocab_size + 0.5f) / p->vocab_size;
+
+		int y_hat = policy_step(p, -1, u);
+		grad_step(p, (y_hat == y ? -1.0 : 1.0));
+		/*
 		printf("Iteration %zu: u=%.2f, y_hat=%d, p=[", i, u, y_hat);
-		for (size_t i = 0; i < N; ++i) {
-			printf("%.2f ", probs[i]);
+		for (size_t j = 0; j < p->vocab_size; ++j) {
+		    printf("%.2f ", p->probs[j]);
 		}
 		printf("\b]\n");
+		*/
 	}
-	TEST_ASSERT_FLOAT_WITHIN(1e-2f, 0, logf(probs[y]));
+	TEST_ASSERT_FLOAT_WITHIN(1e-2f, 0, logf(p->probs[y]));
 }
 
 void test_cross_entropy(void) {
@@ -200,13 +208,12 @@ void test_cross_entropy(void) {
 	float loss = cross_entropy(log_probs, y, N);
 
 	// >>> from keras.ops import categorical_crossentropy
-	// >>> categorical_crossentropy([0, 1, 0], [-3., 1., 2.], from_logits=True)
-	// <tf.Tensor: shape=(), dtype=float32, numpy=1.3181754350662231>
+	// >>> categorical_crossentropy([0, 1, 0], [-3., 1., 2.],
+	// from_logits=True) <tf.Tensor: shape=(), dtype=float32,
+	// numpy=1.3181754350662231>
 	TEST_ASSERT_FLOAT_WITHIN(1e-4f, 1.3181, loss);
 }
 
-void setUp(void) {}
-void tearDown(void) {}
 int main(void) {
 	UNITY_BEGIN();
 	RUN_TEST(test_log_softmax);
