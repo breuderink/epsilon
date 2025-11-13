@@ -1,7 +1,6 @@
 #include <assert.h>
 #include <math.h>
 #include <stddef.h>
-#include <stdlib.h>
 #include <unity.h>
 
 void log_softmax(const float *logits, float *log_probs, size_t n, float temp) {
@@ -24,7 +23,7 @@ void log_softmax(const float *logits, float *log_probs, size_t n, float temp) {
 		log_probs[i] = logf(log_probs[i]) - log_sum;
 }
 
-int sample(const float *probs, size_t n, float u) {
+size_t sample(const float *probs, size_t n, float u) {
 	assert(0.0f <= u && u <= 1.0f);
 	for (size_t i = 0; i < n; i++) {
 		u -= probs[i];
@@ -46,23 +45,27 @@ void ema_grad(const float *probs, size_t y, float *logits_grad, size_t n,
 	}
 }
 
-int act(const float *logits, float *logits_grad, float *probs, size_t n, int y,
-        float decay) {
+typedef struct {
+	float *logits, *logits_grad, *probs;
+	size_t vocab_size;
+	float decay;
+} policy_t;
+
+int policy_step(policy_t *p, int y, float u) {
 	// Compute probabilities.
-	log_softmax(logits, probs, n, 1.0f);
-	for (size_t j = 0; j < n; j++) {
-		probs[j] = expf(probs[j]);
+	log_softmax(p->logits, p->probs, p->vocab_size, 1.0f);
+	for (size_t j = 0; j < p->vocab_size; j++) {
+		p->probs[j] = expf(p->probs[j]);
 	}
 
-	// Sample when y is negative.
-	if (y < 0) {
-		float u = (float)rand() / (float)RAND_MAX;
-		y = sample(probs, n, u);
-		assert(0 <= y && y < (int)n);
+	// Sample when u is provided.
+	if (0 <= u && u <= 1.0f) {
+		y = sample(p->probs, p->vocab_size, u);
+		assert(0 <= y && y < (int)p->vocab_size);
 	}
 
 	// Accumulate gradient.
-	ema_grad(probs, y, logits_grad, n, decay);
+	ema_grad(p->probs, y, p->logits_grad, p->vocab_size, p->decay);
 	return y;
 }
 
@@ -129,22 +132,27 @@ void test_grad(void) {
 	TEST_ASSERT_FLOAT_ARRAY_WITHIN(1e-4f, expected, logits_grad, N);
 }
 
-void test_act(void) {
+void test_policy_forced(void) {
 	enum { N = 3 };
 	float z[N] = {0, 0, 0};
 	float z_grad[N] = {0, 0, 0};
 	float probs[N];
 	float learning_rate = 1.0f;
 
+	policy_t policy = {.logits = z,
+	                   .logits_grad = z_grad,
+	                   .probs = probs,
+	                   .vocab_size = N,
+	                   .decay = 0.1f};
+
 	size_t y = 2;
-	act(z, z_grad, probs, N, y, 0.1f);
-	TEST_ASSERT_FLOAT_WITHIN(1e-6f, logf(1.0f / N), logf(probs[y]));
+	policy_step(&policy, y, NAN);
+	TEST_ASSERT_FLOAT_WITHIN(1e-6f, 1.0f / N, probs[y]);
 
 	for (size_t i = 0; i < 100; i++) {
-		act(z, z_grad, probs, N, y, 0.1f);
+		policy_step(&policy, y, NAN);
 		TEST_ASSERT_FLOAT_WITHIN(1e-6f, 1.0f, probs[0] + probs[1] + probs[2]);
-
-		grad_step(z_grad, z, N, -learning_rate);
+		grad_step(policy.logits_grad, policy.logits, N, -learning_rate);
 	}
 	TEST_ASSERT_FLOAT_WITHIN(1e-2f, 0, logf(probs[y]));
 }
@@ -171,7 +179,7 @@ int main(void) {
 	RUN_TEST(test_log_softmax);
 	RUN_TEST(test_sample);
 	RUN_TEST(test_grad);
-	RUN_TEST(test_act);
+	RUN_TEST(test_policy_forced);
 	RUN_TEST(test_cross_entropy);
 	return UNITY_END();
 }
