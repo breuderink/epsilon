@@ -71,7 +71,7 @@ void test_log_softmax(void) {
 
 	log_softmax(input, output, n, 1);
 
-	float expected[n] = {
+	float expected[] = {
 	    logf(0.09003057f),
 	    logf(0.24472847f),
 	    logf(0.66524096f),
