@@ -148,7 +148,7 @@ void test_policy_forced(void) {
 	                   .vocab_size = N,
 	                   .decay = 0.1f};
 
-	size_t y = 2;
+	int y = 2;
 	policy_step(&policy, y, NAN);
 	TEST_ASSERT_FLOAT_WITHIN(1e-6f, 1.0f / N, probs[y]);
 
@@ -156,6 +156,36 @@ void test_policy_forced(void) {
 		policy_step(&policy, y, NAN);
 		TEST_ASSERT_FLOAT_WITHIN(1e-6f, 1.0f, probs[0] + probs[1] + probs[2]);
 		grad_step(&policy, step_size);
+	}
+	TEST_ASSERT_FLOAT_WITHIN(1e-2f, 0, logf(probs[y]));
+}
+
+#include <stdlib.h>
+void test_policy_sampled(void) {
+	enum { N = 10 };
+	float z[N] = {0};
+	float z_grad[N] = {0};
+	float probs[N];
+
+	policy_t policy = {.logits = z,
+	                   .logits_grad = z_grad,
+	                   .probs = probs,
+	                   .vocab_size = N,
+	                   .decay = 0.5f};
+
+	int y = 1;
+	policy_step(&policy, y, NAN);
+	TEST_ASSERT_FLOAT_WITHIN(1e-6f, 1.0f / N, probs[y]);
+
+	for (size_t i = 0; i < 100; i++) {
+		float u = rand() / (float)RAND_MAX;
+		int y_hat = policy_step(&policy, -1, u);
+		grad_step(&policy, (y_hat == y ? -1.0 : 1.0));
+		printf("Iteration %zu: u=%.2f, y_hat=%d, p=[", i, u, y_hat);
+		for (size_t i = 0; i < N; ++i) {
+			printf("%.2f ", probs[i]);
+		}
+		printf("\b]\n");
 	}
 	TEST_ASSERT_FLOAT_WITHIN(1e-2f, 0, logf(probs[y]));
 }
@@ -183,6 +213,7 @@ int main(void) {
 	RUN_TEST(test_sample);
 	RUN_TEST(test_grad);
 	RUN_TEST(test_policy_forced);
+	RUN_TEST(test_policy_sampled);
 	RUN_TEST(test_cross_entropy);
 	return UNITY_END();
 }
