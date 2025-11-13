@@ -1,11 +1,12 @@
 #include <assert.h>
 #include <float.h>
+#include <math.h>
 #include <stddef.h>
 #include <string.h>
 #include <unity.h>
 
-// In-place log-softmax computation.
-void log_softmax(const float *z, float *s, size_t n) {
+// Log-softmax computation
+void log_softmax(const float *z, float *logp, size_t n, float temp) {
 	// Find max for numerical stability
 	float max_z = -INFINITY;
 	for (size_t i = 0; i < n; i++)
@@ -13,20 +14,20 @@ void log_softmax(const float *z, float *s, size_t n) {
 			max_z = z[i];
 
 	// Subtract max, compute exp, sum
-	float sum = 0.0f;
+	float s = 0.0f;
 	for (size_t i = 0; i < n; i++) {
-		s[i] = expf(z[i] - max_z);
-		sum += s[i];
+		logp[i] = expf((z[i] - max_z) / temp);
+		s += logp[i];
 	}
 
 	// Take log and normalize
-	float log_sum = logf(sum);
+	float log_sum = logf(s);
 	for (size_t i = 0; i < n; i++)
-		s[i] = logf(s[i]) - log_sum;
+		logp[i] = logf(logp[i]) - log_sum;
 }
 
-// Compute NLL loss given log-softmax output and target y
-float nll_from_logp(const float *logp, const float *y, size_t n) {
+// Compute NLL loss given log-softmax output and target
+float nnl(const float *logp, const float *y, size_t n) {
 	float loss = 0.0f;
 	for (size_t i = 0; i < n; i++) {
 		assert(isfinite(logp[i]));
@@ -36,18 +37,20 @@ float nll_from_logp(const float *logp, const float *y, size_t n) {
 	return loss;
 }
 
-void accumulate_grad(const float *logp, const float *y, float *z_grad, size_t n,
-                     float ff) {
+void ema_grad(const float *logp, const float *y, float *zg, size_t n,
+              float ff) {
 	assert(0 < ff && ff <= 1);
 	for (size_t i = 0; i < n; i++) {
 		float grad = expf(logp[i]) - y[i];
-		z_grad[i] += ff * (grad - z_grad[i]);
+		zg[i] += ff * (grad - zg[i]);
 	}
 }
 
-void apply_update(float *params, const float *update, size_t n, float scale) {
+// Apply parameter update: params += step_size * grad
+// Argument order: grad (input), params (output), length, step_size
+void grad_step(const float *zg, float *w, size_t n, float step_size) {
 	for (size_t i = 0; i < n; i++) {
-		params[i] += scale * update[i];
+		w[i] += step_size * zg[i];
 	}
 }
 
@@ -56,7 +59,7 @@ void test_log_softmax(void) {
 	const float input[n] = {1.0f, 2.0f, 3.0f};
 	float output[n];
 
-	log_softmax(input, output, n);
+	log_softmax(input, output, n, 1.0f);
 
 	float expected[n] = {
 	    logf(0.09003057f),
@@ -66,49 +69,57 @@ void test_log_softmax(void) {
 	TEST_ASSERT_FLOAT_ARRAY_WITHIN(1e-4f, expected, output, n);
 }
 
-void test_nll_from_logp(void) {
+void test_nll(void) {
 	const size_t n = 3;
-	const float logp[n] = {logf(0.1f), logf(0.9f), nextafterf(-INFINITY, 0.0f)};
+	const float log_probs[n] = {
+	    logf(0.1f),
+	    logf(0.9f),
+	    nextafterf(-INFINITY, 0.0f),
+	};
 	const float y[n] = {0.0f, 1.0f, 0.0f};
 
-	float loss = nll_from_logp(logp, y, n);
+	float loss = nnl(log_probs, y, n);
 	TEST_ASSERT_FLOAT_WITHIN(1e-4f, 0.10536052f, loss);
 }
 
-void test_accumulate_grad(void) {
+void test_grad(void) {
 	const size_t n = 3;
-	const float logp[n] = {logf(0.1f), logf(0.9f), nextafterf(-INFINITY, 0.0f)};
+	const float log_probs[n] = {
+	    logf(0.1f),
+	    logf(0.9f),
+	    nextafterf(-INFINITY, 0.0f),
+	};
 	const float y[n] = {0.0f, 1.0f, 0.0f};
 
 	// Set initial gradients to 5.
-	float z_grad[n] = {5.0f, 5.0f, 5.0f};
+	float logits_grad[n] = {5.0f, 5.0f, 5.0f};
 
-	// Apply accumulate_grad with ff = 0.1.
-	const float ff = 0.1f;
-	accumulate_grad(logp, y, z_grad, n, ff);
+	// Apply accumulate_grad with decay = 0.1.
+	const float decay = 0.1f;
+	ema_grad(log_probs, y, logits_grad, n, decay);
 
 	// Check expected gradients.
-	float expected[n] = {(1 - ff) * 5.0f + ff * (0.1f - 0.0f),
-	                     (1 - ff) * 5.0f + ff * (0.9f - 1.0f),
-	                     (1 - ff) * 5.0f + ff * (0.0f - 0.0f)};
+	float expected[n] = {(1 - decay) * 5.0f + decay * (0.1f - 0.0f),
+	                     (1 - decay) * 5.0f + decay * (0.9f - 1.0f),
+	                     (1 - decay) * 5.0f + decay * (0.0f - 0.0f)};
 
-	TEST_ASSERT_FLOAT_ARRAY_WITHIN(1e-4f, expected, z_grad, n);
+	TEST_ASSERT_FLOAT_ARRAY_WITHIN(1e-4f, expected, logits_grad, n);
 }
 
-void test_apply_update(void) {
+void test_grad_step(void) {
 	const size_t n = 3;
 	float z[n] = {0.0f};
 	float z_grad[n] = {0.0f};
 
 	float y[n] = {0.0f, 1.0f, 0.0f};
-	float logp[n];
+	float log_probs[n];
 
 	for (size_t i = 0; i < 100; i++) {
-		log_softmax(z, logp, n);
-		accumulate_grad(logp, y, z_grad, n, 0.1f);
-		apply_update(z, z_grad, n, -1.0f); // learning rate = 1.0f
+		log_softmax(z, log_probs, n, 1.0f);
+		ema_grad(log_probs, y, z_grad, n, 0.1f);
+		grad_step(z_grad, z, n, -1.0f); // learning rate = 1.0f
 	}
-	TEST_ASSERT_FLOAT_WITHIN(1e-2f, nll_from_logp(logp, y, n), 0.0f);
+	TEST_ASSERT_FLOAT_WITHIN(1e-2f, nnl(log_probs, y, n), 0.0f);
 }
 
 void setUp(void) {}
@@ -116,8 +127,8 @@ void tearDown(void) {}
 int main(void) {
 	UNITY_BEGIN();
 	RUN_TEST(test_log_softmax);
-	RUN_TEST(test_nll_from_logp);
-	RUN_TEST(test_accumulate_grad);
-	RUN_TEST(test_apply_update);
+	RUN_TEST(test_nll);
+	RUN_TEST(test_grad);
+	RUN_TEST(test_grad_step);
 	return UNITY_END();
 }
