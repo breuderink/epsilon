@@ -1,13 +1,16 @@
 #ifndef CSV_H
 #define CSV_H
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
+
 #define CSV_MAX_FIELDS 512
 #define CSV_BUF_SIZE 4096
 
 typedef struct {
 	char *fields[CSV_MAX_FIELDS];
+	char buf[CSV_BUF_SIZE];
 	size_t n_fields;
 } csv_row_t;
 
