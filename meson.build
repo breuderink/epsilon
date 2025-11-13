@@ -56,6 +56,7 @@ examples = {
 
 tests = {
   'hash_test': 'tests/hash_test.c',
+  'lm_test': 'tests/lm_test.c',
   'rng_test': 'tests/rng_test.c',
   'stats_test': 'tests/stats_test.c',
   'transform_test': 'tests/transform_test.c',
