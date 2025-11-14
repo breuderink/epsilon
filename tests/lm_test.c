@@ -1,5 +1,7 @@
+#include "hash.h"
 #include <assert.h>
 #include <math.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <unity.h>
@@ -47,37 +49,72 @@ void ema_grad(const float *probs, size_t y, float *logits_grad, size_t n,
 }
 
 typedef struct {
-	float *logits, *logits_grad, *probs;
-	size_t vocab_size;
+	size_t context_size, vocab_size;
+	float *param; // [c x 2 x v]
+	float *probs; // [v]
 	float decay;
 } policy_t;
 
-// Perform a policy step. When the action y is -1, sample using u in [0, 1]. The
+policy_t create_policy(size_t c, size_t v) {
+	return (policy_t){
+	    .context_size = c,
+	    .vocab_size = v,
+	    .probs = calloc(v, sizeof(float)),
+	    .param = calloc(c * 2 * v, sizeof(float)),
+	    .decay = 0.1,
+	};
+}
+
+void policy_destroy(policy_t *p) {
+	free(p->probs);
+	free(p->param);
+	*p = (policy_t){0};
+}
+
+static inline float *policy_logits(policy_t *p, size_t c) {
+	return &p->param[c * 2 * p->vocab_size];
+}
+
+static inline float *policy_logits_grad(policy_t *p, size_t c) {
+	return &p->param[(c * 2 + 1) * p->vocab_size];
+}
+
+// Perform a policy step. When the action y is -1, it is sampled. The
 // gradients are accumulated with an EMA and can be used for a gradient step
 // later.
-int policy_step(policy_t *p, int y, float u) {
+int policy_step(policy_t *p, size_t context, int y) {
+	size_t v = p->vocab_size;
+	float *logits = policy_logits(p, context);
+	float *logits_grad = policy_logits_grad(p, context);
+
 	// Compute probabilities.
-	log_softmax(p->logits, p->probs, p->vocab_size, 1.0f);
-	for (size_t j = 0; j < p->vocab_size; j++) {
+	log_softmax(logits, p->probs, v, 1.0f);
+	for (size_t j = 0; j < v; j++) {
 		p->probs[j] = expf(p->probs[j]);
 	}
 
-	// Sample when u is provided.
+	// Sample when y is negative.
 	if (y < 0) {
-		y = sample(p->probs, p->vocab_size, u);
-		assert(0 <= y && y < (int)p->vocab_size);
+		float u = rand() / (float)RAND_MAX;
+		y = sample(p->probs, v, u);
+		assert(0 <= y && y < (int)v);
 	}
 
 	// Accumulate gradient.
-	ema_grad(p->probs, y, p->logits_grad, p->vocab_size, p->decay);
+	ema_grad(p->probs, y, logits_grad, p->vocab_size, p->decay);
 	return y;
 }
 
 // Perform a gradient step on the logits using the accumulated gradients.
 void grad_step(policy_t *p, float step_size) {
-	for (size_t i = 0; i < p->vocab_size; i++) {
-		p->logits[i] += step_size * p->logits_grad[i];
-		assert(isfinite(p->logits[i]));
+	for (size_t c = 0; c < p->context_size; ++c) {
+		float *logits = policy_logits(p, c);
+		float *logits_grad = policy_logits_grad(p, c);
+
+		for (size_t i = 0; i < p->vocab_size; i++) {
+			logits[i] += step_size * logits_grad[i];
+			assert(isfinite(logits[i]));
+		}
 	}
 }
 
@@ -106,25 +143,8 @@ void test_sample(void) {
 	TEST_ASSERT_EQUAL_size_t(2, sample(probs, N, 1.0f));
 }
 
-static policy_t test_policy;
-
-void setUp(void) {
-	const size_t n = 10;
-
-	test_policy = (policy_t){
-	    .vocab_size = n,
-	    .logits = calloc(n, sizeof(float)),
-	    .logits_grad = calloc(n, sizeof(float)),
-	    .probs = calloc(n, sizeof(float)),
-	    .decay = 0.1,
-	};
-}
-
-void tearDown(void) {
-	free(test_policy.logits);
-	free(test_policy.logits_grad);
-	free(test_policy.probs);
-}
+void setUp(void) {}
+void tearDown(void) {}
 
 void test_grad(void) {
 	const float probs[3] = {0.1f, 0.9f, 0.0f};
@@ -144,48 +164,45 @@ void test_grad(void) {
 }
 
 void test_policy_forced(void) {
-	policy_t *p = &test_policy;
-	p->vocab_size = 3;
-	p->decay = 0.1f;
+	policy_t p = create_policy(1, 3);
+	p.decay = 0.1;
 	float step_size = -1.0f;
 
+	size_t context = 0;
 	int y = 2;
-	policy_step(p, y, NAN);
-	TEST_ASSERT_FLOAT_WITHIN(1e-6f, 1.0f / p->vocab_size, p->probs[y]);
+	policy_step(&p, context, y);
+	TEST_ASSERT_FLOAT_WITHIN(1e-6f, 1.0f / p.vocab_size, p.probs[y]);
 
 	for (size_t i = 0; i < 100; i++) {
-		policy_step(p, y, NAN);
+		policy_step(&p, context, y);
 		TEST_ASSERT_FLOAT_WITHIN(1e-6f, 1.0f,
-		                         p->probs[0] + p->probs[1] + p->probs[2]);
-		grad_step(p, step_size);
+		                         p.probs[0] + p.probs[1] + p.probs[2]);
+		grad_step(&p, step_size);
 	}
-	TEST_ASSERT_FLOAT_WITHIN(1e-2f, 0, logf(p->probs[y]));
+	TEST_ASSERT_FLOAT_WITHIN(1e-2f, 0, logf(p.probs[y]));
+	policy_destroy(&p);
 }
 
 void test_policy_sampled(void) {
-	policy_t *p = &test_policy;
-	p->vocab_size = 5;
-	p->decay = 0.5f;
+	policy_t p = create_policy(1, 5);
+	p.decay = 0.1f;
 
-	int y = 1;
-	policy_step(p, y, NAN);
-	TEST_ASSERT_FLOAT_WITHIN(1e-6f, 1.0f / p->vocab_size, p->probs[y]);
+	size_t context = 0;
+	int y = p.vocab_size - 1;
+	policy_step(&p, context, y);
+	TEST_ASSERT_FLOAT_WITHIN(1e-6f, 1.0f / p.vocab_size, p.probs[y]);
 
-	for (size_t i = 0; i < 200; i++) {
-		// For testing we sample deterministically.
-		float u = (i % p->vocab_size + 0.5f) / p->vocab_size;
-
-		int y_hat = policy_step(p, -1, u);
-		grad_step(p, (y_hat == y ? -1.0 : 1.0));
-		/*
-		printf("Iteration %zu: u=%.2f, y_hat=%d, p=[", i, u, y_hat);
-		for (size_t j = 0; j < p->vocab_size; ++j) {
-			printf("%.2f ", p->probs[j]);
+	for (size_t i = 0; i < 100; i++) {
+		int y_hat = policy_step(&p, context, -1);
+		grad_step(&p, (y_hat == y ? -1 : 1));
+		printf("Iteration %zu: y_hat=%d -> p=[", i, y_hat);
+		for (size_t j = 0; j < p.vocab_size; ++j) {
+			printf("%.2f ", p.probs[j]);
 		}
 		printf("\b]\n");
-		*/
 	}
-	TEST_ASSERT_FLOAT_WITHIN(1e-2f, 0, logf(p->probs[y]));
+	TEST_ASSERT_FLOAT_WITHIN(1e-2f, 0, logf(p.probs[y]));
+	policy_destroy(&p);
 }
 
 int main(void) {
