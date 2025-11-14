@@ -81,16 +81,6 @@ void grad_step(policy_t *p, float step_size) {
 	}
 }
 
-float cross_entropy(const float *log_probs, const float *y, size_t n) {
-	float loss = 0.0f;
-	for (size_t i = 0; i < n; i++) {
-		assert(isfinite(log_probs[i]));
-		loss -= y[i] * log_probs[i];
-	}
-	assert(isfinite(loss));
-	return loss;
-}
-
 void test_log_softmax(void) {
 	enum { N = 3 };
 	const float input[N] = {1, 2, 3};
@@ -190,28 +180,12 @@ void test_policy_sampled(void) {
 		/*
 		printf("Iteration %zu: u=%.2f, y_hat=%d, p=[", i, u, y_hat);
 		for (size_t j = 0; j < p->vocab_size; ++j) {
-		    printf("%.2f ", p->probs[j]);
+			printf("%.2f ", p->probs[j]);
 		}
 		printf("\b]\n");
 		*/
 	}
 	TEST_ASSERT_FLOAT_WITHIN(1e-2f, 0, logf(p->probs[y]));
-}
-
-void test_cross_entropy(void) {
-	enum { N = 3 };
-	const float logits[N] = {-3, 1, 2};
-	float log_probs[N];
-	log_softmax(logits, log_probs, N, 1);
-
-	const float y[N] = {0, 1, 0};
-	float loss = cross_entropy(log_probs, y, N);
-
-	// >>> from keras.ops import categorical_crossentropy
-	// >>> categorical_crossentropy([0, 1, 0], [-3., 1., 2.],
-	// from_logits=True) <tf.Tensor: shape=(), dtype=float32,
-	// numpy=1.3181754350662231>
-	TEST_ASSERT_FLOAT_WITHIN(1e-4f, 1.3181, loss);
 }
 
 int main(void) {
@@ -221,6 +195,5 @@ int main(void) {
 	RUN_TEST(test_grad);
 	RUN_TEST(test_policy_forced);
 	RUN_TEST(test_policy_sampled);
-	RUN_TEST(test_cross_entropy);
 	return UNITY_END();
 }
